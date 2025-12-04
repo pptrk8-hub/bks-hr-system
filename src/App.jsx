@@ -32,16 +32,16 @@ const db = getFirestore(app);
 const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'banbakan-hr-system';
 const appId = rawAppId.replace(/\//g, '_').replace(/\./g, '-');
 
-// --- CUSTOM LOGO ---
-// ลิงก์โลโก้จาก Google Drive ของเฮียหยวน (แปลงเป็น Direct Link แล้ว)
-const LOGO_URL = "https://drive.google.com/uc?export=view&id=1b8Ep2pW70A3Ig-4ILoosQ78Kb73hx81t";
+// --- LOGO MANAGEMENT ---
+const DRIVE_THUMBNAIL_URL = "https://drive.google.com/thumbnail?id=1b8Ep2pW70A3Ig-4ILoosQ78Kb73hx81t&sz=w1000";
+const LOGO_FALLBACK = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjIwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMDAxZjViO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMDAwMzM7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8IS0tIFNoaWVsZCAtLT4KICA8cGF0aCBkPSJNMTUgMzAgTCAxMDAgMTAgTCAxODUgMzAgQyAxODUgOTAgMTc1IDE1MCAxMDAgMjEwIEMgMjUgMTUwIDE1IDkwIDE1IDMwIFoiIGZpbGw9InVybCgjZ3JhZDEpIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjUiLz4KICA8IS0tIFdyZWF0aCAoU2ltcGxpZmllZCkgLS0+CiAgPHBhdGggZD0iTTUwIDkwIFEgMjAgMTQwIDcwIDE3MCIgc3Ryb2tlPSIjNGRiOGZmIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuOCIvPgogIDxwYXRoIGQ9Ik0xNTAgOTAgUSAxODAgMTQwIDEzMCAxNzAiIHN0cm9rZT0iIzRkYjhmZiIgc3Ryb2tlLXdpZHRoPSI1IiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjgiLz4KICA8IS0tIFRleHQgQktTLUhSIC0tPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTE1IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSI0MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiPkJLUy1IUjwvdGV4dD4KICA8IS0tIFJpYmJvbiAtLT4KICA8cGF0aCBkPSJNMTUgMTYwIEwgMTg1IDE2MCBMIDE3NSAxOTAgTCAyNSAxOTAgWiIgZmlsbD0iIzAwYmNkNCIgc3Ryb2tlPSJkYXJrY3lhbiIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxODIiIGZvbnQtZmFtaWx5PSJzYW5zLXNZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBzdHlsZT0idGV4dC1zaGFkb3c6IDFweCAxcHCAMnB4IGJsYWNrOyI+QkFOQkFLQU4gU0NIT09MPC90ZXh0Pgo8L3N2Zz4=`;
 
 // --- 2. CONSTANTS & DATA ---
 const DEFAULT_PASSWORD = '1234';
 const THAI_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 const THAI_MONTHS_FULL = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
 
-// Initial Seed Data
+// Initial Seed Data (Added new user: orasa)
 const INITIAL_USERS = [
   { name: "นายพลภัทร ธีระกุล", role: 'Super Admin', position: 'ผู้อำนวยการโรงเรียน', username: 'phonlaphat', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0 },
   { name: "นางสาวทิพวรรณ ศรีทองแก้ว", role: 'Super Admin', position: 'รองผู้อำนวยการโรงเรียน', username: 'tippawan', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0 },
@@ -59,6 +59,7 @@ const INITIAL_USERS = [
   { name: "นางสาวฮัซนา ดาแล่หมัน", role: 'User', position: 'ครู', username: 'husna', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
   { name: "นางสาวนุรอาซีกีน ยาลอ", role: 'User', position: 'ครู', username: 'nuraseekeen', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
   { name: "นางสาวภาอีด๊ะ อ่าวลึกน้อย", role: 'User', position: 'ครู', username: 'paeeda', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
+  { name: "นางสาวอรษา ชาตรีวงศ์", role: 'User', position: 'ครู', username: 'orasa', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
   { name: "นายอิรอน นายาว", role: 'User', position: 'ครู', username: 'iron', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0 },
   { name: "นายอมรศักดิ์ สระวารี", role: 'User', position: 'นักการภารโรง', username: 'amornsak', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0 }
 ];
@@ -145,7 +146,7 @@ const StatCard = ({ title, value, unit, icon: Icon, color }) => (
 // --- 5. MAIN MODULES ---
 
 // Sidebar
-const Sidebar = ({ user, activeTab, setActiveTab, onLogout, isOpen, toggleSidebar }) => {
+const Sidebar = ({ user, activeTab, setActiveTab, onLogout, isOpen, toggleSidebar, customLogo }) => {
   const menus = [
     { id: 'dashboard', label: 'ภาพรวมระบบ', icon: PieChart, roles: ['Super Admin', 'Admin HR', 'User'] },
     { id: 'leaves', label: 'ระบบวันลา', icon: Calendar, roles: ['Super Admin', 'Admin HR'] },
@@ -162,7 +163,12 @@ const Sidebar = ({ user, activeTab, setActiveTab, onLogout, isOpen, toggleSideba
       {isOpen && <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={toggleSidebar}></div>}
       <aside className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-slate-900 text-slate-100 flex flex-col transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-6 flex items-center gap-3 border-b border-slate-800">
-          <img src={LOGO_URL} alt="BKS Logo" className="w-12 h-12 object-contain drop-shadow-md" />
+          <img 
+            src={customLogo || DRIVE_THUMBNAIL_URL} 
+            onError={(e) => { e.target.onerror = null; e.target.src = LOGO_FALLBACK; }}
+            alt="BKS Logo" 
+            className="w-12 h-12 object-contain drop-shadow-md bg-white rounded-full p-1" 
+          />
           <div>
             <h1 className="font-bold text-lg leading-tight">BKS-HR</h1>
             <p className="text-[10px] text-slate-400 uppercase tracking-wider">Management</p>
@@ -430,6 +436,7 @@ export default function BKSHRApp() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [customLogo, setCustomLogo] = useState(null); // Local state for immediate preview
 
   // Leaves, Trainings, Portfolio data for Dashboard
   const [leaves, setLeaves] = useState([]);
@@ -442,13 +449,45 @@ export default function BKSHRApp() {
     if (!authUser) return; 
     const initData = async () => { 
       const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'users')); const snapshot = await getDocs(q); 
-      if (snapshot.empty) { for (const user of INITIAL_USERS) { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...user, password: DEFAULT_PASSWORD, status: 'active', createdAt: serverTimestamp() }); } window.location.reload(); } else { setUsersData(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))); } 
+      
+      let fetchedUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      if (fetchedUsers.length === 0) { 
+        // Initial Seed
+        for (const user of INITIAL_USERS) { 
+          await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...user, password: DEFAULT_PASSWORD, status: 'active', createdAt: serverTimestamp() }); 
+        } 
+        window.location.reload(); 
+      } else { 
+        // Auto-Sync: Check for missing users in INITIAL_USERS and add them
+        const existingUsernames = fetchedUsers.map(u => u.username);
+        let hasNewUser = false;
+        
+        for (const user of INITIAL_USERS) {
+          if (!existingUsernames.includes(user.username)) {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...user, password: DEFAULT_PASSWORD, status: 'active', createdAt: serverTimestamp() });
+            hasNewUser = true;
+          }
+        }
+
+        if (hasNewUser) {
+           // Re-fetch if new users were added
+           const updatedSnap = await getDocs(q);
+           setUsersData(updatedSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        } else {
+           setUsersData(fetchedUsers); 
+        }
+      } 
       
       // Subscribe to other collections for dashboard
       onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves')), (snap) => setLeaves(snap.docs.map(d => d.data())));
       onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')), (snap) => setTrainings(snap.docs.map(d => d.data())));
       onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')), (snap) => setPortfolio(snap.docs.map(d => d.data())));
       
+      // Check for saved custom logo in localStorage (as a quick fix for current user)
+      const savedLogo = localStorage.getItem(`bks_logo_${appId}`);
+      if(savedLogo) setCustomLogo(savedLogo);
+
       setLoading(false); 
     }; 
     initData(); 
@@ -460,13 +499,53 @@ export default function BKSHRApp() {
   const handleResetPassword = async (user) => { if(!confirm(`รีเซ็ตรหัสผ่าน ${user.name} เป็น ${DEFAULT_PASSWORD}?`)) return; await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', user.id), { password: DEFAULT_PASSWORD }); showToast("รีเซ็ตรหัสเรียบร้อย"); };
   const handleAddUser = async (newUser) => { if(usersData.some(u => u.username === newUser.username)) return showToast("Username ซ้ำ", 'error'); const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...newUser, createdAt: serverTimestamp() }); setUsersData([...usersData, { id: docRef.id, ...newUser }]); showToast("เพิ่มผู้ใช้สำเร็จ"); };
 
+  // Function to handle logo upload manually
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomLogo(reader.result);
+        localStorage.setItem(`bks_logo_${appId}`, reader.result); // Save to local storage for persistence on this device
+        showToast("อัปเดตโลโก้เรียบร้อย (เฉพาะเครื่องนี้)");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading BKS-HR...</div>;
   if (!currentUser) return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4"> {toast && <Toast {...toast} onClose={() => setToast(null)} />} <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm animate-fade-in-up"> <div className="text-center mb-8"> <img src={LOGO_URL} alt="BKS Logo" className="w-24 h-24 object-contain mx-auto mb-4 drop-shadow-xl" /> <h1 className="text-2xl font-bold text-gray-800">ระบบ BKS-HR</h1> <p className="text-gray-500 text-sm">โรงเรียนบ้านบากัน</p> </div> <form onSubmit={handleLogin} className="space-y-4"> <input className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username" value={loginForm.user} onChange={e => setLoginForm({...loginForm, user: e.target.value})} /> <input type="password" className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Password" value={loginForm.pass} onChange={e => setLoginForm({...loginForm, pass: e.target.value})} /> <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">เข้าสู่ระบบ</button> </form> </div> </div>
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4"> 
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />} 
+      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm animate-fade-in-up relative group"> 
+        <div className="text-center mb-8"> 
+          <div className="relative inline-block">
+            <img 
+              src={customLogo || DRIVE_THUMBNAIL_URL} 
+              onError={(e) => { e.target.onerror = null; e.target.src = LOGO_FALLBACK; }}
+              alt="BKS Logo" 
+              className="w-24 h-24 object-contain mx-auto mb-4 drop-shadow-xl" 
+            />
+            {/* Hidden upload trigger for manual override */}
+            <label className="absolute bottom-0 right-0 bg-white shadow-md p-1 rounded-full cursor-pointer hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity" title="เปลี่ยนโลโก้ (เฉพาะเครื่องนี้)">
+              <Camera size={14} className="text-gray-600"/>
+              <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+            </label>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800">ระบบ BKS-HR</h1> 
+          <p className="text-gray-500 text-sm">โรงเรียนบ้านบากัน</p> 
+        </div> 
+        <form onSubmit={handleLogin} className="space-y-4"> 
+          <input className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username" value={loginForm.user} onChange={e => setLoginForm({...loginForm, user: e.target.value})} /> 
+          <input type="password" className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Password" value={loginForm.pass} onChange={e => setLoginForm({...loginForm, pass: e.target.value})} /> 
+          <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">เข้าสู่ระบบ</button> 
+        </form> 
+      </div> 
+    </div>
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-sans text-slate-800"> {toast && <Toast {...toast} onClose={() => setToast(null)} />} <Sidebar user={currentUser} activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setCurrentUser(null)} isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} /> <main className="flex-1 flex flex-col h-screen overflow-hidden"> <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between shrink-0"> <div className="flex items-center gap-3"> <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"><Menu size={24}/></button> <h1 className="font-bold text-lg hidden sm:block">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h1> </div> <div className="flex items-center gap-3"> <span className="text-sm font-medium text-gray-600 hidden sm:block">{currentUser.name}</span> {currentUser.photoURL ? (<img src={currentUser.photoURL} alt="Profile" className="w-8 h-8 rounded-full object-cover" />) : (<div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs">{currentUser.name.charAt(0)}</div>)} </div> </header> <div className="flex-1 overflow-y-auto p-4 lg:p-8"> <div className="max-w-7xl mx-auto min-h-[calc(100vh-120px)] flex flex-col"> 
+    <div className="flex min-h-screen bg-slate-50 font-sans text-slate-800"> {toast && <Toast {...toast} onClose={() => setToast(null)} />} <Sidebar user={currentUser} activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setCurrentUser(null)} isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} customLogo={customLogo} /> <main className="flex-1 flex flex-col h-screen overflow-hidden"> <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between shrink-0"> <div className="flex items-center gap-3"> <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"><Menu size={24}/></button> <h1 className="font-bold text-lg hidden sm:block">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h1> </div> <div className="flex items-center gap-3"> <span className="text-sm font-medium text-gray-600 hidden sm:block">{currentUser.name}</span> {currentUser.photoURL ? (<img src={currentUser.photoURL} alt="Profile" className="w-8 h-8 rounded-full object-cover" />) : (<div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs">{currentUser.name.charAt(0)}</div>)} </div> </header> <div className="flex-1 overflow-y-auto p-4 lg:p-8"> <div className="max-w-7xl mx-auto min-h-[calc(100vh-120px)] flex flex-col"> 
       <div className="flex-1">
         {activeTab === 'dashboard' && <DashboardModule user={currentUser} leaves={leaves} trainings={trainings} portfolio={portfolio} setActiveTab={setActiveTab} usersData={usersData} />} 
         {activeTab === 'users' && currentUser.role === 'Super Admin' && <UserManagement usersData={usersData} onAddUser={handleAddUser} onUpdateUser={handleUpdateUser} onResetPassword={handleResetPassword} />} 
