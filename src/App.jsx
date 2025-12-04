@@ -29,13 +29,11 @@ const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__f
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'banbakan-hr-system';
-const appId = rawAppId.replace(/\//g, '_').replace(/\./g, '-');
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'banbakan-hr-system';
 
 // --- LOGO & ASSETS MANAGEMENT ---
 const DRIVE_THUMBNAIL_URL = "https://drive.google.com/thumbnail?id=1b8Ep2pW70A3Ig-4ILoosQ78Kb73hx81t&sz=w1000";
 const LOGO_FALLBACK = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjIwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMDAxZjViO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMDAwMzM7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8IS0tIFNoaWVsZCAtLT4KICA8cGF0aCBkPSJNMTUgMzAgTCAxMDAgMTAgTCAxODUgMzAgQyAxODUgOTAgMTc1IDE1MCAxMDAgMjEwIEMgMjUgMTUwIDE1IDkwIDE1IDMwIFoiIGZpbGw9InVybCgjZ3JhZDEpIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjUiLz4KICA8IS0tIFdyZWF0aCAoU2ltcGxpZmllZCkgLS0+CiAgPHBhdGggZD0iTTUwIDkwIFEgMjAgMTQwIDcwIDE3MCIgc3Ryb2tlPSIjNGRiOGZmIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuOCIvPgogIDxwYXRoIGQ9Ik0xNTAgOTAgUSAxODAgMTQwIDEzMCAxNzAiIHN0cm9rZT0iIzRkYjhmZiIgc3Ryb2tlLXdpZHRoPSI1IiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjgiLz4KICA8IS0tIFRleHQgQktTLUhSIC0tPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTE1IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSI0MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiPkJLUy1IUjwvdGV4dD4KICA8IS0tIFJpYmJvbiAtLT4KICA8cGF0aCBkPSJNMTUgMTYwIEwgMTg1IDE2MCBMIDE3NSAxOTAgTCAyNSAxOTAgWiIgZmlsbD0iIzAwYmNkNCIgc3Ryb2tlPSJkYXJrY3lhbiIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxODIiIGZvbnQtZmFtaWx5PSJzYW5zLXNZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBzdHlsZT0idGV4dC1zaGFkb3c6IDFweCAxcHCAMnB4IGJsYWNrOyI+QkFOQkFLQU4gU0NIT09MPC90ZXh0Pgo8L3N2Zz4=`;
-// ใช้ลิงก์ Thumbnail สำหรับตราครุฑ (sz=w1000 เพื่อความชัด)
 const GARUDA_URL = "https://drive.google.com/thumbnail?id=10lfNN_Qqqip6NpLtw-u16SQxVKlbfGBR&sz=w1000";
 
 // --- 2. CONSTANTS & DATA ---
@@ -43,7 +41,7 @@ const DEFAULT_PASSWORD = '1234';
 const THAI_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 const THAI_MONTHS_FULL = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
 
-// Initial Seed Data (Added new user: orasa)
+// Initial Seed Data
 const INITIAL_USERS = [
   { name: "นายพลภัทร ธีระกุล", role: 'Super Admin', position: 'ผู้อำนวยการโรงเรียน', username: 'phonlaphat', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0 },
   { name: "นางสาวทิพวรรณ ศรีทองแก้ว", role: 'Super Admin', position: 'รองผู้อำนวยการโรงเรียน', username: 'tippawan', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0 },
@@ -195,7 +193,6 @@ const Sidebar = ({ user, activeTab, setActiveTab, onLogout, isOpen, toggleSideba
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold shadow-inner">{user.name.charAt(0)}</div>
             <div className="overflow-hidden">
               <p className="text-xs font-bold truncate text-white">{user.name}</p>
-              {/* Added Position Display below Name */}
               <p className="text-[10px] text-slate-300 truncate">{user.position}</p>
               <p className="text-[9px] text-slate-500 truncate">{user.role}</p>
             </div>
@@ -207,14 +204,13 @@ const Sidebar = ({ user, activeTab, setActiveTab, onLogout, isOpen, toggleSideba
   );
 };
 
-// Dashboard Module (The new version v7)
+// Dashboard Module
 const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, usersData }) => {
   const leaveCount = leaves.length;
   const trainingCount = trainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0);
   const portfolioCount = portfolio.length;
   const staffCount = usersData.length;
 
-  // Chart Data: Leave stats for current month
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   const currentMonthLeaves = leaves.filter(l => {
@@ -310,7 +306,7 @@ const SalaryModule = ({ usersData, onUpdateUser, showToast }) => {
   );
 };
 
-// Other Modules (User, Profile, Leave, Training, Portfolio, Report)
+// User Management Module
 const UserManagement = ({ usersData, onAddUser, onUpdateUser, onResetPassword }) => {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -363,7 +359,7 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
   const [viewMode, setViewMode] = useState('list');
   const [selectedUserFilter, setSelectedUserFilter] = useState('');
   const [form, setForm] = useState({ staffId: '', type: 'sick', start: '', end: '', reason: '', evidenceImage: null });
-  useEffect(() => { if (!authUser) return; const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves'), orderBy('createdAt', 'desc')); const unsub = onSnapshot(q, (snap) => setLeaves(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => unsub(); }, [authUser]);
+  useEffect(() => { if (!authUser) return; const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves')); const unsub = onSnapshot(q, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); data.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); setLeaves(data); }); return () => unsub(); }, [authUser]);
   const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { if (file.size > 1048576) { alert("ไฟล์ภาพใหญ่เกินไป (ต้องไม่เกิน 1MB)"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, evidenceImage: reader.result }); reader.readAsDataURL(file); } };
   const handleSubmit = async (e) => { e.preventDefault(); if(!form.staffId || !form.start || !form.end) return showToast("กรุณากรอกข้อมูล", 'error'); const staff = usersData.find(u => u.id === form.staffId); const cycle = getCycleInfo(new Date(form.start)); const days = calculateDays(form.start, form.end, form.type); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leaves'), { staffId: staff.id, staffName: staff.name, leaveType: form.type, startDate: form.start, endDate: form.end, reason: form.reason, daysCount: days, cycle: cycle.cycle, fiscalYear: cycle.year, cycleLabel: cycle.label, createdAt: serverTimestamp(), recordedBy: currentUser.name, evidenceImage: form.evidenceImage }); showToast("บันทึกวันลาสำเร็จ", 'success'); setViewMode('list'); setForm({ staffId: '', type: 'sick', start: '', end: '', reason: '', evidenceImage: null }); };
   const filteredLeaves = selectedUserFilter ? leaves.filter(l => l.staffId === selectedUserFilter) : leaves;
@@ -385,7 +381,7 @@ const TrainingModule = ({ currentUser, authUser, showToast, usersData }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState('my_trainings');
   const [form, setForm] = useState({ topic: '', org: '', startDate: '', endDate: '', hours: 0, type: 'On-site', evidenceImage: null });
-  useEffect(() => { if (!authUser) return; const qMy = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings'), where('userId', '==', currentUser.id)); const unsubMy = onSnapshot(qMy, (snap) => setTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); if (currentUser.role !== 'User') { const qAll = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')); const unsubAll = onSnapshot(qAll, (snap) => setAllTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => { unsubMy(); unsubAll(); }; } return () => unsubMy(); }, [currentUser, authUser]);
+  useEffect(() => { if (!authUser) return; const qMy = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')); const unsubMy = onSnapshot(qMy, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); setTrainings(data.filter(t => t.userId === currentUser.id)); }); if (currentUser.role !== 'User') { const qAll = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')); const unsubAll = onSnapshot(qAll, (snap) => setAllTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => { unsubMy(); unsubAll(); }; } return () => unsubMy(); }, [currentUser, authUser]);
   const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { if (file.size > 1048576) { alert("ไฟล์ภาพใหญ่เกินไป"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, evidenceImage: reader.result }); reader.readAsDataURL(file); } };
   const addTraining = async (e) => { e.preventDefault(); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'trainings'), { ...form, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); showToast("บันทึกการอบรมเรียบร้อย"); setIsModalOpen(false); setForm({ topic: '', org: '', startDate: '', endDate: '', hours: 0, type: 'On-site', evidenceImage: null }); };
   const trainingSummary = useMemo(() => { if (currentUser.role === 'User') return []; const summary = usersData.map(user => { const userTrainings = allTrainings.filter(t => t.userId === user.id); const totalHours = userTrainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0); const count = userTrainings.length; return { ...user, totalHours, count }; }).sort((a, b) => b.totalHours - a.totalHours); return summary; }, [allTrainings, usersData]);
@@ -398,7 +394,7 @@ const PortfolioModule = ({ currentUser, authUser, showToast }) => {
   const [items, setItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState({ title: '', year: new Date().getFullYear() + 543, type: 'รางวัล', role: 'เจ้าของผลงาน', description: '', link: '', image: null, pdf: null });
-  useEffect(() => { if (!authUser) return; const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio'), where('userId', '==', currentUser.id)); const unsub = onSnapshot(q, (snap) => setItems(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => unsub(); }, [currentUser, authUser]);
+  useEffect(() => { if (!authUser) return; const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')); const unsub = onSnapshot(q, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); setItems(data.filter(i => i.userId === currentUser.id)); }); return () => unsub(); }, [currentUser, authUser]);
   const handleImageChange = (e) => { const file = e.target.files[0]; if(file) { if (file.size > 1048576) { alert("รูปภาพต้องขนาดไม่เกิน 1MB"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, image: reader.result }); reader.readAsDataURL(file); } };
   const handlePdfChange = (e) => { const file = e.target.files[0]; if(file) { if (file.size > 2097152) { alert("ไฟล์ PDF ต้องขนาดไม่เกิน 2MB"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, pdf: reader.result }); reader.readAsDataURL(file); } };
   const addItem = async (e) => { e.preventDefault(); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio'), { ...form, userId: currentUser.id, createdAt: serverTimestamp() }); showToast("บันทึกผลงานเรียบร้อย"); setIsModalOpen(false); setForm({ title: '', year: new Date().getFullYear() + 543, type: 'รางวัล', role: 'เจ้าของผลงาน', description: '', link: '', image: null, pdf: null }); };
@@ -417,15 +413,8 @@ const ReportModule = ({ usersData, authUser }) => {
   const [trainingYear, setTrainingYear] = useState(new Date().getFullYear() + 543);
   const [portfolioYear, setPortfolioYear] = useState(new Date().getFullYear() + 543);
   const [selectedPortfolioUser, setSelectedPortfolioUser] = useState(usersData[0]?.id || '');
-  useEffect(() => { if (!authUser) return; const unsubLeaves = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves')), (snap) => setLeaves(snap.docs.map(d => ({id: d.id, ...d.data()})))); const unsubTrainings = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')), (snap) => setTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); const unsubPortfolios = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')), (snap) => setPortfolios(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => { unsubLeaves(); unsubTrainings(); unsubPortfolios(); }; }, [authUser]);
-  const handlePrint = () => window.print();
-  const leaveReportData = useMemo(() => leaves.filter(l => { const d = new Date(l.startDate); return d.getMonth() === parseInt(reportMonth) && d.getFullYear() === parseInt(reportYear); }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate)), [leaves, reportMonth, reportYear]);
-  const leaveSummaryData = useMemo(() => { const reportDateObj = new Date(reportYear, reportMonth, 1); const reportCycleInfo = getCycleInfo(reportDateObj); const cycleLeaves = leaves.filter(l => l.cycle === reportCycleInfo.cycle && l.fiscalYear === reportCycleInfo.year); const summary = sortedUsers.map(staff => { const staffLeaves = cycleLeaves.filter(l => l.staffName === staff.name); const totals = { name: staff.name, sick: 0, personal: 0, half_day: 0, maternity: 0, religious: 0, late: 0, totalDays: 0 }; staffLeaves.forEach(l => { const days = Number(l.daysCount) || 0; totals.totalDays += days; if (l.leaveType === 'sick') totals.sick += days; else if (l.leaveType === 'personal') totals.personal += days; else if (l.leaveType === 'half_day') totals.half_day += days; else if (l.leaveType === 'maternity') totals.maternity += days; else if (l.leaveType === 'religious') totals.religious += days; else if (l.leaveType === 'late') totals.late += 1; }); return totals; }); return { cycleLabel: reportCycleInfo.label, summary }; }, [leaves, reportMonth, reportYear, sortedUsers]);
-  const trainingReportData = useMemo(() => usersData.map(u => { const userTrainings = trainings.filter(t => t.userId === u.id); const totalHours = userTrainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0); return { ...u, totalHours, count: userTrainings.length }; }).sort((a, b) => b.totalHours - a.totalHours), [trainings, usersData]);
-  const portfolioReportData = useMemo(() => portfolios.filter(p => p.userId === selectedPortfolioUser && parseInt(p.year) === parseInt(portfolioYear)), [portfolios, selectedPortfolioUser, portfolioYear]);
-  const selectedUser = usersData.find(u => u.id === selectedPortfolioUser) || {};
-  const salaryTotal = usersData.reduce((acc, u) => acc + (Number(u.salary)||0) + (Number(u.academic)||0), 0);
-  
+
+  // FIXED: Moved sortedUsers logic to TOP of component to prevent ReferenceError
   // Sorting Logic for Reports
   const sortedUsers = useMemo(() => {
     return [...usersData].sort((a, b) => {
@@ -444,6 +433,19 @@ const ReportModule = ({ usersData, authUser }) => {
     });
   }, [usersData]);
 
+  useEffect(() => { if (!authUser) return; const unsubLeaves = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves')), (snap) => setLeaves(snap.docs.map(d => ({id: d.id, ...d.data()})))); const unsubTrainings = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')), (snap) => setTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); const unsubPortfolios = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')), (snap) => setPortfolios(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => { unsubLeaves(); unsubTrainings(); unsubPortfolios(); }; }, [authUser]);
+  
+  const handlePrint = () => window.print();
+  const leaveReportData = useMemo(() => leaves.filter(l => { const d = new Date(l.startDate); return d.getMonth() === parseInt(reportMonth) && d.getFullYear() === parseInt(reportYear); }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate)), [leaves, reportMonth, reportYear]);
+  
+  // This hook now works because sortedUsers is defined above
+  const leaveSummaryData = useMemo(() => { const reportDateObj = new Date(reportYear, reportMonth, 1); const reportCycleInfo = getCycleInfo(reportDateObj); const cycleLeaves = leaves.filter(l => l.cycle === reportCycleInfo.cycle && l.fiscalYear === reportCycleInfo.year); const summary = sortedUsers.map(staff => { const staffLeaves = cycleLeaves.filter(l => l.staffName === staff.name); const totals = { name: staff.name, sick: 0, personal: 0, half_day: 0, maternity: 0, religious: 0, late: 0, totalDays: 0 }; staffLeaves.forEach(l => { const days = Number(l.daysCount) || 0; totals.totalDays += days; if (l.leaveType === 'sick') totals.sick += days; else if (l.leaveType === 'personal') totals.personal += days; else if (l.leaveType === 'half_day') totals.half_day += days; else if (l.leaveType === 'maternity') totals.maternity += days; else if (l.leaveType === 'religious') totals.religious += days; else if (l.leaveType === 'late') totals.late += 1; }); return totals; }); return { cycleLabel: reportCycleInfo.label, summary }; }, [leaves, reportMonth, reportYear, sortedUsers]);
+  
+  const trainingReportData = useMemo(() => usersData.map(u => { const userTrainings = trainings.filter(t => t.userId === u.id); const totalHours = userTrainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0); return { ...u, totalHours, count: userTrainings.length }; }).sort((a, b) => b.totalHours - a.totalHours), [trainings, usersData]);
+  const portfolioReportData = useMemo(() => portfolios.filter(p => p.userId === selectedPortfolioUser && parseInt(p.year) === parseInt(portfolioYear)), [portfolios, selectedPortfolioUser, portfolioYear]);
+  const selectedUser = usersData.find(u => u.id === selectedPortfolioUser) || {};
+  const salaryTotal = usersData.reduce((acc, u) => acc + (Number(u.salary)||0) + (Number(u.academic)||0), 0);
+  
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 print:p-0 print:shadow-none print:border-none">
       <style>{`@media print { @page { size: A4; margin: 1cm; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .no-print { display: none !important; } .print-only { display: block !important; } .page-break { page-break-inside: avoid; } } .print-only { display: none; }`}</style>
@@ -497,7 +499,11 @@ export default function BKSHRApp() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  const [customLogo, setCustomLogo] = useState(null); // Local state for immediate preview
+  const [customLogo, setCustomLogo] = useState(null);
+  
+  // Forgot Password State
+  const [view, setView] = useState('login'); // 'login' or 'forgot'
+  const [forgotEmail, setForgotEmail] = useState('');
 
   // Leaves, Trainings, Portfolio data for Dashboard
   const [leaves, setLeaves] = useState([]);
@@ -555,7 +561,22 @@ export default function BKSHRApp() {
   }, [authUser]);
 
   const showToast = (message, type = 'success') => setToast({ message, type });
+  
   const handleLogin = (e) => { e.preventDefault(); const user = usersData.find(u => (u.username === loginForm.user || u.name === loginForm.user) && u.password === loginForm.pass && u.status !== 'disabled'); if (user) { setCurrentUser(user); setActiveTab('dashboard'); showToast(`ยินดีต้อนรับ ${user.name}`); } else { showToast("รหัสผ่านไม่ถูกต้อง", 'error'); } };
+  
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    const user = usersData.find(u => u.username === forgotEmail || u.email === forgotEmail);
+    if (user && user.email) {
+      showToast(`ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ ${user.email} เรียบร้อยแล้ว (จำลอง)`, 'success');
+      setTimeout(() => setView('login'), 2000);
+    } else if (user) {
+      showToast(`ผู้ใช้ ${user.name} ยังไม่ได้ลงทะเบียนอีเมลในระบบ กรุณาติดต่อ Admin`, 'error');
+    } else {
+      showToast('ไม่พบข้อมูลผู้ใช้ในระบบ', 'error');
+    }
+  };
+
   const handleUpdateUser = async (uid, data) => { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), data); showToast("บันทึกสำเร็จ"); const updatedUser = { ...currentUser, ...data }; if (currentUser.id === uid) setCurrentUser(updatedUser); setUsersData(prev => prev.map(u => u.id === uid ? { ...u, ...data } : u)); };
   const handleResetPassword = async (user) => { if(!confirm(`รีเซ็ตรหัสผ่าน ${user.name} เป็น ${DEFAULT_PASSWORD}?`)) return; await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', user.id), { password: DEFAULT_PASSWORD }); showToast("รีเซ็ตรหัสเรียบร้อย"); };
   const handleAddUser = async (newUser) => { if(usersData.some(u => u.username === newUser.username)) return showToast("Username ซ้ำ", 'error'); const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...newUser, createdAt: serverTimestamp() }); setUsersData([...usersData, { id: docRef.id, ...newUser }]); showToast("เพิ่มผู้ใช้สำเร็จ"); };
@@ -587,7 +608,6 @@ export default function BKSHRApp() {
               alt="BKS Logo" 
               className="w-24 h-24 object-contain mx-auto mb-4 drop-shadow-xl" 
             />
-            {/* Hidden upload trigger for manual override */}
             <label className="absolute bottom-0 right-0 bg-white shadow-md p-1 rounded-full cursor-pointer hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity" title="เปลี่ยนโลโก้ (เฉพาะเครื่องนี้)">
               <Camera size={14} className="text-gray-600"/>
               <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
@@ -596,11 +616,29 @@ export default function BKSHRApp() {
           <h1 className="text-2xl font-bold text-gray-800">ระบบ BKS-HR</h1> 
           <p className="text-gray-500 text-sm">โรงเรียนบ้านบากัน</p> 
         </div> 
-        <form onSubmit={handleLogin} className="space-y-4"> 
-          <input className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username" value={loginForm.user} onChange={e => setLoginForm({...loginForm, user: e.target.value})} /> 
-          <input type="password" className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Password" value={loginForm.pass} onChange={e => setLoginForm({...loginForm, pass: e.target.value})} /> 
-          <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">เข้าสู่ระบบ</button> 
-        </form> 
+        
+        {view === 'login' ? (
+          <form onSubmit={handleLogin} className="space-y-4"> 
+            <input className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username" value={loginForm.user} onChange={e => setLoginForm({...loginForm, user: e.target.value})} /> 
+            <input type="password" className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Password" value={loginForm.pass} onChange={e => setLoginForm({...loginForm, pass: e.target.value})} /> 
+            <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">เข้าสู่ระบบ</button> 
+            <div className="text-center">
+              <button type="button" onClick={() => setView('forgot')} className="text-sm text-blue-500 hover:underline">ลืมรหัสผ่าน?</button>
+            </div>
+          </form> 
+        ) : (
+          <form onSubmit={handleForgotPassword} className="space-y-4 animate-fade-in">
+            <div className="text-center mb-4">
+              <h3 className="font-bold text-gray-700">รีเซ็ตรหัสผ่าน</h3>
+              <p className="text-xs text-gray-500">กรอก Username หรือ Email เพื่อรับลิงก์</p>
+            </div>
+            <input className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username หรือ Email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} required /> 
+            <button className="w-full bg-orange-500 text-white py-3 rounded-xl font-bold hover:bg-orange-600 transition shadow-lg">ส่งลิงก์รีเซ็ต</button> 
+            <div className="text-center">
+              <button type="button" onClick={() => setView('login')} className="text-sm text-gray-500 hover:text-gray-700">กลับไปหน้าเข้าสู่ระบบ</button>
+            </div>
+          </form>
+        )}
       </div> 
     </div>
   );
