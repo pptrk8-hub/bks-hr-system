@@ -11,7 +11,7 @@ import {
   Calendar, User, FileText, PieChart, 
   Save, AlertCircle, CheckCircle, Upload, Trash2, Clock,
   Lock, LogOut, ShieldCheck, Printer, Menu, X,
-  Users, Award, BookOpen, Edit, Settings, Search, Bell, ChevronRight, Briefcase, Plus, Filter, Eye, Camera, BarChart2, Link as LinkIcon, File, DollarSign
+  Users, Award, BookOpen, Edit, Settings, Search, Bell, ChevronRight, Briefcase, Plus, Filter, Eye, Camera, BarChart2, Link as LinkIcon, File, DollarSign, Mail, HelpCircle
 } from 'lucide-react';
 
 // --- 1. CONFIGURATION & SETUP ---
@@ -194,7 +194,9 @@ const Sidebar = ({ user, activeTab, setActiveTab, onLogout, isOpen, toggleSideba
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold shadow-inner">{user.name.charAt(0)}</div>
             <div className="overflow-hidden">
               <p className="text-xs font-bold truncate text-white">{user.name}</p>
-              <p className="text-[10px] text-slate-400 truncate">{user.role}</p>
+              {/* Added Position Display below Name */}
+              <p className="text-[10px] text-slate-300 truncate">{user.position}</p>
+              <p className="text-[9px] text-slate-500 truncate">{user.role}</p>
             </div>
           </div>
           <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 text-xs font-medium text-red-400 hover:bg-red-950/30 py-2 rounded-lg transition-colors border border-transparent hover:border-red-900"><LogOut size={14} /> ลงชื่อออก</button>
@@ -323,7 +325,22 @@ const UserManagement = ({ usersData, onAddUser, onUpdateUser, onResetPassword })
         <h2 className="text-xl font-bold flex items-center gap-2"><Users className="text-blue-600"/> จัดการผู้ใช้</h2>
         <div className="flex gap-2 w-full sm:w-auto"><div className="relative flex-1 sm:w-64"><Search className="absolute left-3 top-2.5 text-gray-400" size={18}/><input type="text" placeholder="ค้นหา..." className="w-full pl-10 p-2 bg-gray-50 border rounded-lg" value={search} onChange={e => setSearch(e.target.value)} /></div><button onClick={openAdd} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 whitespace-nowrap"><Plus size={18}/> เพิ่มผู้ใช้</button></div>
       </div>
-      <div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700 uppercase font-bold"><tr><th className="p-3">ชื่อ-สกุล</th><th className="p-3">Username</th><th className="p-3">ตำแหน่ง/ฝ่าย</th><th className="p-3">สิทธิ์</th><th className="p-3">สถานะ</th><th className="p-3 text-center">จัดการ</th></tr></thead><tbody className="divide-y divide-gray-100">{filteredUsers.map(u => (<tr key={u.id} className="hover:bg-blue-50/50"><td className="p-3 font-medium">{u.name}</td><td className="p-3 text-gray-500">@{u.username}</td><td className="p-3">{u.position}<br/><span className="text-xs text-gray-400">{u.department}</span></td><td className="p-3"><span className={`px-2 py-1 rounded text-xs border ${u.role === 'Super Admin' ? 'bg-purple-50 border-purple-200 text-purple-700' : 'bg-gray-50 border-gray-200'}`}>{u.role}</span></td><td className="p-3"><span className={`px-2 py-1 rounded-full text-xs ${u.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{u.status === 'active' ? 'ใช้งาน' : 'ปิด'}</span></td><td className="p-3 flex gap-2 justify-center"><button onClick={() => onResetPassword(u)} className="p-1.5 bg-yellow-50 text-yellow-600 rounded hover:bg-yellow-100" title="รีเซ็ตรหัส"><Lock size={16}/></button><button onClick={() => openEdit(u)} className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100" title="แก้ไข"><Edit size={16}/></button></td></tr>))}</tbody></table></div>
+      <div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700 uppercase font-bold"><tr><th className="p-3">ชื่อ-สกุล</th><th className="p-3">Username</th><th className="p-3">ตำแหน่ง/ฝ่าย</th><th className="p-3">สิทธิ์</th><th className="p-3">สถานะ</th><th className="p-3 text-center">จัดการ</th></tr></thead><tbody className="divide-y divide-gray-100">{filteredUsers.map(u => (<tr key={u.id} className="hover:bg-blue-50/50"><td className="p-3">
+            <div className="flex items-center gap-3">
+               {/* Avatar Logic */}
+               <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 overflow-hidden shrink-0">
+                  {u.photoURL ? (
+                    <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <User size={16} className="text-slate-400" />
+                  )}
+               </div>
+               <div>
+                 <div className="font-medium">{u.name}</div>
+                 <div className="text-xs text-gray-400">{u.position}</div>
+               </div>
+            </div>
+          </td><td className="p-3 text-gray-500">@{u.username}</td><td className="p-3">{u.position}<br/><span className="text-xs text-gray-400">{u.department}</span></td><td className="p-3"><span className={`px-2 py-1 rounded text-xs border ${u.role === 'Super Admin' ? 'bg-purple-50 border-purple-200 text-purple-700' : 'bg-gray-50 border-gray-200'}`}>{u.role}</span></td><td className="p-3"><span className={`px-2 py-1 rounded-full text-xs ${u.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{u.status === 'active' ? 'ใช้งาน' : 'ปิด'}</span></td><td className="p-3 flex gap-2 justify-center"><button onClick={() => onResetPassword(u)} className="p-1.5 bg-yellow-50 text-yellow-600 rounded hover:bg-yellow-100" title="รีเซ็ตรหัส"><Lock size={16}/></button><button onClick={() => openEdit(u)} className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100" title="แก้ไข"><Edit size={16}/></button></td></tr>))}</tbody></table></div>
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditMode ? "แก้ไขผู้ใช้" : "เพิ่มผู้ใช้ใหม่"}><form onSubmit={handleSubmit} className="space-y-3"><div><label className="text-xs font-bold text-gray-500">ชื่อ-สกุล</label><input className="w-full p-2 border rounded" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} /></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">Username</label><input className="w-full p-2 border rounded" required disabled={isEditMode} value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} /></div>{!isEditMode && <div><label className="text-xs font-bold text-gray-500">Password</label><input className="w-full p-2 border rounded" value={DEFAULT_PASSWORD} disabled /></div>}</div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">ตำแหน่ง</label><input className="w-full p-2 border rounded" value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">กลุ่มสาระ/ฝ่าย</label><input className="w-full p-2 border rounded" value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} /></div></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">เบอร์โทร</label><input className="w-full p-2 border rounded" value={formData.tel} onChange={e => setFormData({...formData, tel: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">Email</label><input className="w-full p-2 border rounded" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} /></div></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">สิทธิ์ (Role)</label><select className="w-full p-2 border rounded" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}><option value="User">User (ครูทั่วไป)</option><option value="Admin HR">Admin HR</option><option value="Super Admin">Super Admin</option></select></div><div><label className="text-xs font-bold text-gray-500">สถานะ</label><select className="w-full p-2 border rounded" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}><option value="active">Active (ใช้งาน)</option><option value="disabled">Disabled (ปิด)</option></select></div></div><button className="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700 mt-4">บันทึกข้อมูล</button></form></Modal>
     </div>
   );
@@ -419,7 +436,30 @@ const ReportModule = ({ usersData, authUser }) => {
       </div>
       <div className="w-full max-w-[210mm] mx-auto bg-white text-black p-4 min-h-[297mm]">
         {activeReport === 'leave' && (<div><div className="mb-6 relative"><img src={GARUDA_URL} alt="Garuda" className="absolute top-0 left-0" style={{ width: '1.5cm', height: 'auto' }} /><div className="text-center"><h3 className="text-2xl font-bold">บันทึกข้อความ</h3></div><div className="text-left mt-4 leading-relaxed"><p><strong>ส่วนราชการ</strong> โรงเรียนบ้านบากัน อำเภออ่าวลึก จังหวัดกระบี่</p><p><strong>ที่</strong> ................................................. <strong>วันที่</strong> {new Date().getDate()} {THAI_MONTHS_FULL[new Date().getMonth()]} {new Date().getFullYear() + 543}</p><p><strong>เรื่อง</strong> รายงานสรุปการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</p></div><hr className="my-4 border-black"/><p className="text-left mb-4"><strong>เรียน ผู้อำนวยการโรงเรียนบ้านบากัน</strong></p><p className="text-left indent-8 mb-4">ด้วยข้าพเจ้าได้รับมอบหมายให้รวบรวมสถิติการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน <u>{THAI_MONTHS_FULL[reportMonth]} พ.ศ. {parseInt(reportYear) + 543}</u> เพื่อนำเสนอต่อผู้บริหาร ดังรายละเอียดต่อไปนี้</p></div><div className="mb-6"><h4 className="font-bold mb-2">1. รายการลาประจำเดือน</h4><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center w-10">ที่</th><th className="border border-black p-1 text-center w-32">ว/ด/ป ที่ลา</th><th className="border border-black p-1 text-left">ชื่อ-สกุล</th><th className="border border-black p-1 text-center w-24">ประเภท</th><th className="border border-black p-1 text-center w-16">วัน</th><th className="border border-black p-1 text-left">หมายเหตุ</th></tr></thead><tbody>{leaveReportData.length > 0 ? leaveReportData.map((row, index) => (<tr key={row.id}><td className="border border-black p-1 text-center align-top">{index + 1}</td><td className="border border-black p-1 text-center align-top">{formatDateThai(row.startDate)} {row.startDate !== row.endDate && <><br/>-{formatDateThai(row.endDate)}</>}</td><td className="border border-black p-1 align-top">{row.staffName}</td><td className="border border-black p-1 text-center align-top">{LEAVE_TYPES.find(t=>t.id === row.leaveType)?.label}</td><td className="border border-black p-1 text-center align-top">{row.daysCount}</td><td className="border border-black p-1 align-top">{row.reason || "-"}</td></tr>)) : <tr><td colSpan={6} className="border border-black p-4 text-center">-- ไม่มีรายการลาในเดือนนี้ --</td></tr>}</tbody></table></div><div className="mb-8 page-break"><div className="flex justify-between items-end mb-2"><h4 className="font-bold">2. สรุปวันลาสะสม ({leaveSummaryData.cycleLabel})</h4><span className="text-xs">* หน่วยเป็น "วัน" (มาสาย นับเป็น "ครั้ง")</span></div><table className="w-full border-collapse border border-black text-xs"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center">ที่</th><th className="border border-black p-1 text-left w-40">ชื่อ-สกุล</th><th className="border border-black p-1 text-center">ป่วย</th><th className="border border-black p-1 text-center">กิจ</th><th className="border border-black p-1 text-center">ครึ่งวัน</th><th className="border border-black p-1 text-center">คลอด</th><th className="border border-black p-1 text-center">ศาสนา</th><th className="border border-black p-1 text-center bg-gray-100">รวมวัน</th><th className="border border-black p-1 text-center text-red-600">สาย(ครั้ง)</th></tr></thead><tbody>{leaveSummaryData.summary.map((staff, idx) => (<tr key={idx} className={staff.totalDays > 0 ? "" : "text-gray-400"}><td className="border border-black p-1 text-center">{idx + 1}</td><td className="border border-black p-1">{staff.name}</td><td className="border border-black p-1 text-center">{staff.sick || '-'}</td><td className="border border-black p-1 text-center">{staff.personal || '-'}</td><td className="border border-black p-1 text-center">{staff.half_day || '-'}</td><td className="border border-black p-1 text-center">{staff.maternity || '-'}</td><td className="border border-black p-1 text-center">{staff.religious || '-'}</td><td className="border border-black p-1 text-center font-bold bg-gray-50">{staff.totalDays || '-'}</td><td className="border border-black p-1 text-center text-red-600">{staff.late || '-'}</td></tr>))}</tbody></table></div><div className="grid grid-cols-2 gap-4 px-4 page-break"><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสุมาลี บุญชู )</p><p>ฝ่ายบริหารงานบุคคล</p></div><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสาวทิพวรรณ ศรีทองแก้ว )</p><p>รองผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div><div className="mt-8 text-center px-4"><p className="mb-2">ทราบ / อนุญาต</p><p className="mb-6">ลงชื่อ .......................................................</p><p className="font-bold">( นายพลภัทร ธีระกุล )</p><p>ผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div>)}
-        {activeReport === 'salary' && (<div><div className="text-center mb-8"><h3 className="text-xl font-bold">รายงานสรุปบัญชีถือจ่ายเงินเดือนข้าราชการครูและบุคลากร</h3><h4 className="text-lg">โรงเรียนบ้านบากัน ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</h4></div><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-2 text-center w-12">ที่</th><th className="border border-black p-2 text-left">ชื่อ-สกุล</th><th className="border border-black p-2 text-left">ตำแหน่ง</th><th className="border border-black p-2 text-right">เงินเดือน</th><th className="border border-black p-2 text-right">เงินวิทยฐานะ</th><th className="border border-black p-2 text-right font-bold bg-gray-100">รวมรับสุทธิ</th><th className="border border-black p-2 text-center w-24">ลายมือชื่อ</th></tr></thead><tbody>{usersData.map((user, index) => { const total = (Number(user.salary)||0) + (Number(user.academic)||0); return (<tr key={user.id}><td className="border border-black p-2 text-center">{index + 1}</td><td className="border border-black p-2">{user.name}</td><td className="border border-black p-2">{user.position}</td><td className="border border-black p-2 text-right">{user.salary ? formatCurrency(user.salary) : '-'}</td><td className="border border-black p-2 text-right">{user.academic ? formatCurrency(user.academic) : '-'}</td><td className="border border-black p-2 text-right font-bold bg-gray-50">{formatCurrency(total)}</td><td className="border border-black p-2"></td></tr>); })}</tbody><tfoot><tr className="bg-gray-200 font-bold"><td colSpan={3} className="border border-black p-2 text-center">รวมทั้งสิ้น</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.salary)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.academic)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(salaryTotal)}</td><td className="border border-black p-2"></td></tr></tfoot></table><div className="grid grid-cols-3 gap-4 px-4 mt-12 page-break"><div className="text-center"><p className="mb-8">ลงชื่อ ........................................... ผู้จัดทำ</p><p className="font-bold">( นางสุมาลี บุญชู )</p><p>เจ้าหน้าที่การเงิน</p></div><div className="text-center"><p className="mb-8">ลงชื่อ ........................................... ผู้ตรวจสอบ</p><p className="font-bold">( นางสาวทิพวรรณ ศรีทองแก้ว )</p><p>รองผู้อำนวยการโรงเรียน</p></div><div className="text-center"><p className="mb-8">ลงชื่อ ........................................... ผู้อนุมัติ</p><p className="font-bold">( นายพลภัทร ธีระกุล )</p><p>ผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div></div>)}
+        {activeReport === 'salary' && (<div><div className="text-center mb-8"><h3 className="text-xl font-bold">รายงานสรุปบัญชีถือจ่ายเงินเดือนข้าราชการครูและบุคลากร</h3><h4 className="text-lg">โรงเรียนบ้านบากัน ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</h4></div><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-2 text-center w-12">ที่</th><th className="border border-black p-2 text-left">ชื่อ-สกุล</th><th className="border border-black p-2 text-left">ตำแหน่ง</th><th className="border border-black p-2 text-right">เงินเดือน</th><th className="border border-black p-2 text-right">เงินวิทยฐานะ</th><th className="border border-black p-2 text-right font-bold bg-gray-100">รวมรับสุทธิ</th><th className="border border-black p-2 text-center w-24">ลายมือชื่อ</th></tr></thead><tbody>{usersData.map((user, index) => { const total = (Number(user.salary)||0) + (Number(user.academic)||0); return (<tr key={user.id}><td className="border border-black p-2 text-center">{index + 1}</td><td className="border border-black p-2">{user.name}</td><td className="border border-black p-2">{user.position}</td><td className="border border-black p-2 text-right">{user.salary ? formatCurrency(user.salary) : '-'}</td><td className="border border-black p-2 text-right">{user.academic ? formatCurrency(user.academic) : '-'}</td><td className="border border-black p-2 text-right font-bold bg-gray-50">{formatCurrency(total)}</td><td className="border border-black p-2"></td></tr>); })}</tbody><tfoot><tr className="bg-gray-200 font-bold"><td colSpan={3} className="border border-black p-2 text-center">รวมทั้งสิ้น</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.salary)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.academic)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(salaryTotal)}</td><td className="border border-black p-2"></td></tr></tfoot></table>
+        
+        {/* Updated Signature Section with correct name and better spacing */}
+        <div className="grid grid-cols-3 gap-4 px-4 mt-12 page-break">
+          <div className="text-center">
+            <p className="mb-8">ลงชื่อ ...........................................</p>
+            <p className="font-bold mb-1">( นางรอยฮัน โต๊ะดำ )</p>
+            <p>ผู้จัดทำ</p>
+            <p className="text-xs text-gray-500">(เจ้าหน้าที่การเงิน)</p>
+          </div>
+          <div className="text-center">
+            <p className="mb-8">ลงชื่อ ...........................................</p>
+            <p className="font-bold mb-1">( นางสาวทิพวรรณ ศรีทองแก้ว )</p>
+            <p>ผู้ตรวจสอบ</p>
+            <p className="text-xs text-gray-500">(รองผู้อำนวยการโรงเรียน)</p>
+          </div>
+          <div className="text-center">
+            <p className="mb-8">ลงชื่อ ...........................................</p>
+            <p className="font-bold mb-1">( นายพลภัทร ธีระกุล )</p>
+            <p>ผู้อนุมัติ</p>
+            <p className="text-xs text-gray-500">(ผู้อำนวยการโรงเรียน)</p>
+          </div>
+        </div>
+        </div>)}
         {activeReport === 'training' && (<div><div className="text-center mb-8"><h3 className="text-xl font-bold">รายงานสรุปผลการพัฒนาบุคลากร (อบรม/สัมมนา)</h3><h4 className="text-lg">โรงเรียนบ้านบากัน ประจำปีการศึกษา {trainingYear}</h4></div><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-2 text-center w-16">ลำดับ</th><th className="border border-black p-2 text-left">ชื่อ-สกุล</th><th className="border border-black p-2 text-left">ตำแหน่ง</th><th className="border border-black p-2 text-center w-24">จำนวนครั้ง</th><th className="border border-black p-2 text-center w-32">ชั่วโมงรวม</th><th className="border border-black p-2 text-center w-40">หมายเหตุ</th></tr></thead><tbody>{trainingReportData.map((row, index) => (<tr key={row.id}><td className="border border-black p-2 text-center">{index + 1}</td><td className="border border-black p-2">{row.name}</td><td className="border border-black p-2">{row.position}</td><td className="border border-black p-2 text-center">{row.count}</td><td className="border border-black p-2 text-center font-bold">{row.totalHours}</td><td className="border border-black p-2"></td></tr>))}</tbody></table><div className="mt-8 text-center px-4"><p className="mb-6">ลงชื่อ ....................................................... ผู้รับรองข้อมูล</p><p className="font-bold">( นายพลภัทร ธีระกุล )</p><p>ผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div>)}
         {activeReport === 'portfolio' && (<div><div className="text-center mb-8 border-b-2 border-black pb-4"><h3 className="text-2xl font-bold mb-2">รายงานสรุปผลงานดีเด่น (Best Practice)</h3><h4 className="text-lg">ประจำปีการศึกษา {portfolioYear}</h4></div><div className="mb-6"><p className="text-lg"><strong>ชื่อ-สกุล:</strong> {selectedUser.name}</p><p className="text-lg"><strong>ตำแหน่ง:</strong> {selectedUser.position} <strong>สังกัด:</strong> {selectedUser.department || '-'}</p></div>{portfolioReportData.length > 0 ? (<table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-2 text-center w-16">ลำดับ</th><th className="border border-black p-2 text-left">ชื่อผลงาน / รางวัล</th><th className="border border-black p-2 text-center w-32">ประเภท</th><th className="border border-black p-2 text-center w-40">บทบาท</th></tr></thead><tbody>{portfolioReportData.map((row, index) => (<tr key={row.id}><td className="border border-black p-2 text-center align-top">{index + 1}</td><td className="border border-black p-2 align-top"><span className="font-bold block">{row.title}</span><span className="text-xs text-gray-600">{row.description}</span></td><td className="border border-black p-2 text-center align-top">{row.type}</td><td className="border border-black p-2 text-center align-top">{row.role}</td></tr>))}</tbody></table>) : (<div className="p-10 text-center border border-black border-dashed text-gray-500">-- ไม่พบข้อมูลผลงานในปีการศึกษานี้ --</div>)}<div className="mt-12 flex justify-between px-10"><div className="text-center"><p className="mb-8">ลงชื่อ ....................................................... เจ้าของประวัติ</p><p className="font-bold">( {selectedUser.name} )</p></div><div className="text-center"><p className="mb-8">ลงชื่อ ....................................................... ผู้รับรอง</p><p className="font-bold">( นายพลภัทร ธีระกุล )</p><p>ผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div></div>)}
       </div>
@@ -437,7 +477,11 @@ export default function BKSHRApp() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  const [customLogo, setCustomLogo] = useState(null); // Local state for immediate preview
+  const [customLogo, setCustomLogo] = useState(null);
+  
+  // Forgot Password State
+  const [view, setView] = useState('login'); // 'login' or 'forgot'
+  const [forgotEmail, setForgotEmail] = useState('');
 
   // Leaves, Trainings, Portfolio data for Dashboard
   const [leaves, setLeaves] = useState([]);
@@ -495,7 +539,22 @@ export default function BKSHRApp() {
   }, [authUser]);
 
   const showToast = (message, type = 'success') => setToast({ message, type });
+  
   const handleLogin = (e) => { e.preventDefault(); const user = usersData.find(u => (u.username === loginForm.user || u.name === loginForm.user) && u.password === loginForm.pass && u.status !== 'disabled'); if (user) { setCurrentUser(user); setActiveTab('dashboard'); showToast(`ยินดีต้อนรับ ${user.name}`); } else { showToast("รหัสผ่านไม่ถูกต้อง", 'error'); } };
+  
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    const user = usersData.find(u => u.username === forgotEmail || u.email === forgotEmail);
+    if (user && user.email) {
+      showToast(`ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ ${user.email} เรียบร้อยแล้ว (จำลอง)`, 'success');
+      setTimeout(() => setView('login'), 2000);
+    } else if (user) {
+      showToast(`ผู้ใช้ ${user.name} ยังไม่ได้ลงทะเบียนอีเมลในระบบ กรุณาติดต่อ Admin`, 'error');
+    } else {
+      showToast('ไม่พบข้อมูลผู้ใช้ในระบบ', 'error');
+    }
+  };
+
   const handleUpdateUser = async (uid, data) => { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), data); showToast("บันทึกสำเร็จ"); const updatedUser = { ...currentUser, ...data }; if (currentUser.id === uid) setCurrentUser(updatedUser); setUsersData(prev => prev.map(u => u.id === uid ? { ...u, ...data } : u)); };
   const handleResetPassword = async (user) => { if(!confirm(`รีเซ็ตรหัสผ่าน ${user.name} เป็น ${DEFAULT_PASSWORD}?`)) return; await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', user.id), { password: DEFAULT_PASSWORD }); showToast("รีเซ็ตรหัสเรียบร้อย"); };
   const handleAddUser = async (newUser) => { if(usersData.some(u => u.username === newUser.username)) return showToast("Username ซ้ำ", 'error'); const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...newUser, createdAt: serverTimestamp() }); setUsersData([...usersData, { id: docRef.id, ...newUser }]); showToast("เพิ่มผู้ใช้สำเร็จ"); };
@@ -527,7 +586,6 @@ export default function BKSHRApp() {
               alt="BKS Logo" 
               className="w-24 h-24 object-contain mx-auto mb-4 drop-shadow-xl" 
             />
-            {/* Hidden upload trigger for manual override */}
             <label className="absolute bottom-0 right-0 bg-white shadow-md p-1 rounded-full cursor-pointer hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity" title="เปลี่ยนโลโก้ (เฉพาะเครื่องนี้)">
               <Camera size={14} className="text-gray-600"/>
               <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
@@ -536,11 +594,29 @@ export default function BKSHRApp() {
           <h1 className="text-2xl font-bold text-gray-800">ระบบ BKS-HR</h1> 
           <p className="text-gray-500 text-sm">โรงเรียนบ้านบากัน</p> 
         </div> 
-        <form onSubmit={handleLogin} className="space-y-4"> 
-          <input className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username" value={loginForm.user} onChange={e => setLoginForm({...loginForm, user: e.target.value})} /> 
-          <input type="password" className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Password" value={loginForm.pass} onChange={e => setLoginForm({...loginForm, pass: e.target.value})} /> 
-          <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">เข้าสู่ระบบ</button> 
-        </form> 
+        
+        {view === 'login' ? (
+          <form onSubmit={handleLogin} className="space-y-4"> 
+            <input className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username" value={loginForm.user} onChange={e => setLoginForm({...loginForm, user: e.target.value})} /> 
+            <input type="password" className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Password" value={loginForm.pass} onChange={e => setLoginForm({...loginForm, pass: e.target.value})} /> 
+            <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">เข้าสู่ระบบ</button> 
+            <div className="text-center">
+              <button type="button" onClick={() => setView('forgot')} className="text-sm text-blue-500 hover:underline">ลืมรหัสผ่าน?</button>
+            </div>
+          </form> 
+        ) : (
+          <form onSubmit={handleForgotPassword} className="space-y-4 animate-fade-in">
+            <div className="text-center mb-4">
+              <h3 className="font-bold text-gray-700">รีเซ็ตรหัสผ่าน</h3>
+              <p className="text-xs text-gray-500">กรอก Username หรือ Email เพื่อรับลิงก์</p>
+            </div>
+            <input className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username หรือ Email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} required /> 
+            <button className="w-full bg-orange-500 text-white py-3 rounded-xl font-bold hover:bg-orange-600 transition shadow-lg">ส่งลิงก์รีเซ็ต</button> 
+            <div className="text-center">
+              <button type="button" onClick={() => setView('login')} className="text-sm text-gray-500 hover:text-gray-700">กลับไปหน้าเข้าสู่ระบบ</button>
+            </div>
+          </form>
+        )}
       </div> 
     </div>
   );
