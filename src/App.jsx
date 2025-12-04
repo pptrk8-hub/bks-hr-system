@@ -120,7 +120,6 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => { const t = setTimeout(onClose, 3000); return () => clearTimeout(t); }, [onClose]);
   const bg = type === 'success' ? 'bg-green-600' : 'bg-red-600';
-  // Refactored to simple variable to avoid string interpolation issues in build
   const toastClasses = `fixed top-4 right-4 ${bg} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in z-50`;
   
   return (
@@ -196,7 +195,6 @@ const Sidebar = ({ user, activeTab, setActiveTab, onLogout, isOpen, toggleSideba
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold shadow-inner">{user.name.charAt(0)}</div>
             <div className="overflow-hidden">
               <p className="text-xs font-bold truncate text-white">{user.name}</p>
-              {/* Added Position Display below Name */}
               <p className="text-[10px] text-slate-300 truncate">{user.position}</p>
               <p className="text-[9px] text-slate-500 truncate">{user.role}</p>
             </div>
@@ -215,25 +213,35 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
   const portfolioCount = portfolio.length;
   const staffCount = usersData.length;
 
-  // Calculate current cycle info
   const currentCycle = getCycleInfo(new Date());
-
-  // Filter personal data for the logged-in user and current cycle
   const myLeaves = leaves.filter(l => l.staffId === user.id && l.cycle === currentCycle.cycle && l.fiscalYear === currentCycle.year);
   const myTrainings = trainings.filter(t => t.userId === user.id);
   const myPortfolios = portfolio.filter(p => p.userId === user.id);
 
-  // Calculate personal stats
+  // --- LOGIC UPDATE: Count all except late for times, Exclude religious from days ---
+  const leaveEntries = myLeaves.filter(l => l.leaveType !== 'late');
+  const totalTimes = leaveEntries.length; 
+  
+  const totalDaysUsed = leaveEntries
+    .filter(l => l.leaveType !== 'religious')
+    .reduce((acc, curr) => acc + (Number(curr.daysCount) || 0), 0);
+
+  const religiousDays = leaveEntries
+    .filter(l => l.leaveType === 'religious')
+    .reduce((acc, curr) => acc + (Number(curr.daysCount) || 0), 0);
+
+  const lateCount = myLeaves.filter(l => l.leaveType === 'late').length;
+
   const myStats = {
-    sickUsed: myLeaves.filter(l => l.leaveType === 'sick').reduce((acc, curr) => acc + (Number(curr.daysCount) || 0), 0),
-    personalUsed: myLeaves.filter(l => l.leaveType === 'personal').reduce((acc, curr) => acc + (Number(curr.daysCount) || 0), 0),
-    lateCount: myLeaves.filter(l => l.leaveType === 'late').length,
+    totalTimes,
+    totalDaysUsed,
+    religiousDays,
+    lateCount,
     trainingHours: myTrainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0),
     portfolioCount: myPortfolios.length
   };
 
-  // Define Quotas (Example: Sick 60, Personal 45)
-  const QUOTAS = { sick: 60, personal: 45 };
+  const QUOTAS = { times: 6, days: 25 };
 
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
@@ -251,7 +259,6 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
     <div className="space-y-6 animate-fade-in">
       <h2 className="text-2xl font-bold text-slate-800 mb-2">ระบบสารสนเทศบริหารงานบุคคล โรงเรียนบ้านบากัน</h2>
 
-      {/* Personal Stats Section */}
       <div className="bg-white rounded-xl shadow-sm border border-indigo-100 overflow-hidden">
         <div className="bg-indigo-50 px-6 py-3 border-b border-indigo-100 flex justify-between items-center">
           <h3 className="font-bold text-indigo-900 flex items-center gap-2">
@@ -259,36 +266,45 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
           </h3>
         </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Leave Stats */}
           <div className="space-y-4">
-            <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">วันลาคงเหลือ</h4>
+            <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">สิทธิ์การลาคงเหลือ</h4>
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span>ลาป่วย</span>
-                <span className="font-bold">{myStats.sickUsed} / {QUOTAS.sick} วัน</span>
+                <span>จำนวนครั้งที่ใช้สิทธิ์</span>
+                <span className={`font-bold ${myStats.totalTimes > QUOTAS.times ? 'text-red-600' : 'text-gray-700'}`}>
+                  {myStats.totalTimes} / {QUOTAS.times} ครั้ง
+                </span>
               </div>
               <div className="w-full bg-gray-100 rounded-full h-2">
-                <div className="bg-red-500 h-2 rounded-full transition-all" style={{ width: `${Math.min((myStats.sickUsed / QUOTAS.sick) * 100, 100)}%` }}></div>
+                <div className={`h-2 rounded-full transition-all ${myStats.totalTimes > QUOTAS.times ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${Math.min((myStats.totalTimes / QUOTAS.times) * 100, 100)}%` }}></div>
               </div>
-              <p className="text-xs text-right text-gray-400 mt-0.5">คงเหลือ {Math.max(QUOTAS.sick - myStats.sickUsed, 0)} วัน</p>
             </div>
+
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span>ลากิจ</span>
-                <span className="font-bold">{myStats.personalUsed} / {QUOTAS.personal} วัน</span>
+                <span>จำนวนวันที่ใช้สิทธิ์</span>
+                <span className={`font-bold ${myStats.totalDaysUsed > QUOTAS.days ? 'text-red-600' : 'text-gray-700'}`}>
+                  {myStats.totalDaysUsed} / {QUOTAS.days} วัน
+                </span>
               </div>
               <div className="w-full bg-gray-100 rounded-full h-2">
-                <div className="bg-orange-500 h-2 rounded-full transition-all" style={{ width: `${Math.min((myStats.personalUsed / QUOTAS.personal) * 100, 100)}%` }}></div>
+                <div className={`h-2 rounded-full transition-all ${myStats.totalDaysUsed > QUOTAS.days ? 'bg-red-500' : 'bg-orange-500'}`} style={{ width: `${Math.min((myStats.totalDaysUsed / QUOTAS.days) * 100, 100)}%` }}></div>
               </div>
-              <p className="text-xs text-right text-gray-400 mt-0.5">คงเหลือ {Math.max(QUOTAS.personal - myStats.personalUsed, 0)} วัน</p>
+              <p className="text-xs text-gray-400 mt-1">*นับรวมทุกประเภท (ยกเว้นวันลาศาสนา)</p>
             </div>
-            <div className="flex justify-between items-center bg-gray-50 p-2 rounded-lg">
-               <span className="text-sm text-gray-600">มาสาย (ครั้ง)</span>
-               <span className="font-bold text-red-600 bg-white px-2 py-0.5 rounded border border-gray-200">{myStats.lateCount}</span>
+
+            <div className="grid grid-cols-2 gap-2 mt-2">
+               <div className="bg-purple-50 p-2 rounded-lg border border-purple-100 text-center">
+                  <span className="text-xs text-purple-600 block">ลาศาสนา</span>
+                  <span className="font-bold text-purple-800">{myStats.religiousDays} วัน</span>
+               </div>
+               <div className="bg-red-50 p-2 rounded-lg border border-red-100 text-center">
+                  <span className="text-xs text-red-600 block">มาสาย</span>
+                  <span className="font-bold text-red-800">{myStats.lateCount} ครั้ง</span>
+               </div>
             </div>
           </div>
 
-          {/* Training Stats */}
           <div className="flex flex-col items-center justify-center p-4 bg-green-50 rounded-xl border border-green-100">
             <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-2">
               <BookOpen size={24} />
@@ -298,7 +314,6 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
             <span className="text-xs text-gray-500">ชั่วโมงสะสม</span>
           </div>
 
-          {/* Portfolio Stats */}
           <div className="flex flex-col items-center justify-center p-4 bg-purple-50 rounded-xl border border-purple-100">
             <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mb-2">
               <Award size={24} />
@@ -310,7 +325,6 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
         </div>
       </div>
       
-      {/* Organization Stats (Original) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard title="บุคลากรทั้งหมด" value={staffCount} unit="คน" icon={Users} color="bg-indigo-100" />
         <StatCard title="วันลา (ปีนี้)" value={leaveCount} unit="วัน" icon={Calendar} color="bg-blue-100" />
@@ -410,7 +424,6 @@ const UserManagement = ({ usersData, onAddUser, onUpdateUser, onResetPassword })
       </div>
       <div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700 uppercase font-bold"><tr><th className="p-3">ชื่อ-สกุล</th><th className="p-3">Username</th><th className="p-3">ตำแหน่ง/ฝ่าย</th><th className="p-3">สิทธิ์</th><th className="p-3">สถานะ</th><th className="p-3 text-center">จัดการ</th></tr></thead><tbody className="divide-y divide-gray-100">{filteredUsers.map(u => (<tr key={u.id} className="hover:bg-blue-50/50"><td className="p-3">
             <div className="flex items-center gap-3">
-               {/* Avatar Logic */}
                <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 overflow-hidden shrink-0">
                   {u.photoURL ? (
                     <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
@@ -500,8 +513,7 @@ const ReportModule = ({ usersData, authUser }) => {
   const [portfolioYear, setPortfolioYear] = useState(new Date().getFullYear() + 543);
   const [selectedPortfolioUser, setSelectedPortfolioUser] = useState(usersData[0]?.id || '');
 
-  // FIXED: Moved sortedUsers logic to TOP of component to prevent ReferenceError
-  // Sorting Logic for Reports
+  // Sorted Users Logic (Director -> Deputy -> Admin -> Others)
   const sortedUsers = useMemo(() => {
     return [...usersData].sort((a, b) => {
       const getPriority = (user) => {
@@ -523,10 +535,7 @@ const ReportModule = ({ usersData, authUser }) => {
   
   const handlePrint = () => window.print();
   const leaveReportData = useMemo(() => leaves.filter(l => { const d = new Date(l.startDate); return d.getMonth() === parseInt(reportMonth) && d.getFullYear() === parseInt(reportYear); }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate)), [leaves, reportMonth, reportYear]);
-  
-  // This hook now works because sortedUsers is defined above
   const leaveSummaryData = useMemo(() => { const reportDateObj = new Date(reportYear, reportMonth, 1); const reportCycleInfo = getCycleInfo(reportDateObj); const cycleLeaves = leaves.filter(l => l.cycle === reportCycleInfo.cycle && l.fiscalYear === reportCycleInfo.year); const summary = sortedUsers.map(staff => { const staffLeaves = cycleLeaves.filter(l => l.staffName === staff.name); const totals = { name: staff.name, sick: 0, personal: 0, half_day: 0, maternity: 0, religious: 0, late: 0, totalDays: 0 }; staffLeaves.forEach(l => { const days = Number(l.daysCount) || 0; totals.totalDays += days; if (l.leaveType === 'sick') totals.sick += days; else if (l.leaveType === 'personal') totals.personal += days; else if (l.leaveType === 'half_day') totals.half_day += days; else if (l.leaveType === 'maternity') totals.maternity += days; else if (l.leaveType === 'religious') totals.religious += days; else if (l.leaveType === 'late') totals.late += 1; }); return totals; }); return { cycleLabel: reportCycleInfo.label, summary }; }, [leaves, reportMonth, reportYear, sortedUsers]);
-  
   const trainingReportData = useMemo(() => usersData.map(u => { const userTrainings = trainings.filter(t => t.userId === u.id); const totalHours = userTrainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0); return { ...u, totalHours, count: userTrainings.length }; }).sort((a, b) => b.totalHours - a.totalHours), [trainings, usersData]);
   const portfolioReportData = useMemo(() => portfolios.filter(p => p.userId === selectedPortfolioUser && parseInt(p.year) === parseInt(portfolioYear)), [portfolios, selectedPortfolioUser, portfolioYear]);
   const selectedUser = usersData.find(u => u.id === selectedPortfolioUser) || {};
@@ -585,8 +594,8 @@ export default function BKSHRApp() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  const [customLogo, setCustomLogo] = useState(null);
-  
+  const [customLogo, setCustomLogo] = useState(null); // Local state for immediate preview
+
   // Forgot Password State
   const [view, setView] = useState('login'); // 'login' or 'forgot'
   const [forgotEmail, setForgotEmail] = useState('');
@@ -647,22 +656,7 @@ export default function BKSHRApp() {
   }, [authUser]);
 
   const showToast = (message, type = 'success') => setToast({ message, type });
-  
   const handleLogin = (e) => { e.preventDefault(); const user = usersData.find(u => (u.username === loginForm.user || u.name === loginForm.user) && u.password === loginForm.pass && u.status !== 'disabled'); if (user) { setCurrentUser(user); setActiveTab('dashboard'); showToast(`ยินดีต้อนรับ ${user.name}`); } else { showToast("รหัสผ่านไม่ถูกต้อง", 'error'); } };
-  
-  const handleForgotPassword = (e) => {
-    e.preventDefault();
-    const user = usersData.find(u => u.username === forgotEmail || u.email === forgotEmail);
-    if (user && user.email) {
-      showToast(`ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ ${user.email} เรียบร้อยแล้ว (จำลอง)`, 'success');
-      setTimeout(() => setView('login'), 2000);
-    } else if (user) {
-      showToast(`ผู้ใช้ ${user.name} ยังไม่ได้ลงทะเบียนอีเมลในระบบ กรุณาติดต่อ Admin`, 'error');
-    } else {
-      showToast('ไม่พบข้อมูลผู้ใช้ในระบบ', 'error');
-    }
-  };
-
   const handleUpdateUser = async (uid, data) => { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), data); showToast("บันทึกสำเร็จ"); const updatedUser = { ...currentUser, ...data }; if (currentUser.id === uid) setCurrentUser(updatedUser); setUsersData(prev => prev.map(u => u.id === uid ? { ...u, ...data } : u)); };
   const handleResetPassword = async (user) => { if(!confirm(`รีเซ็ตรหัสผ่าน ${user.name} เป็น ${DEFAULT_PASSWORD}?`)) return; await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', user.id), { password: DEFAULT_PASSWORD }); showToast("รีเซ็ตรหัสเรียบร้อย"); };
   const handleAddUser = async (newUser) => { if(usersData.some(u => u.username === newUser.username)) return showToast("Username ซ้ำ", 'error'); const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...newUser, createdAt: serverTimestamp() }); setUsersData([...usersData, { id: docRef.id, ...newUser }]); showToast("เพิ่มผู้ใช้สำเร็จ"); };
@@ -680,6 +674,19 @@ export default function BKSHRApp() {
       reader.readAsDataURL(file);
     }
   };
+  
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    const user = usersData.find(u => u.username === forgotEmail || u.email === forgotEmail);
+    if (user && user.email) {
+      showToast(`ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ ${user.email} เรียบร้อยแล้ว (จำลอง)`, 'success');
+      setTimeout(() => setView('login'), 2000);
+    } else if (user) {
+      showToast(`ผู้ใช้ ${user.name} ยังไม่ได้ลงทะเบียนอีเมลในระบบ กรุณาติดต่อ Admin`, 'error');
+    } else {
+      showToast('ไม่พบข้อมูลผู้ใช้ในระบบ', 'error');
+    }
+  };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading BKS-HR...</div>;
   if (!currentUser) return (
@@ -694,6 +701,7 @@ export default function BKSHRApp() {
               alt="BKS Logo" 
               className="w-24 h-24 object-contain mx-auto mb-4 drop-shadow-xl" 
             />
+            {/* Hidden upload trigger for manual override */}
             <label className="absolute bottom-0 right-0 bg-white shadow-md p-1 rounded-full cursor-pointer hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity" title="เปลี่ยนโลโก้ (เฉพาะเครื่องนี้)">
               <Camera size={14} className="text-gray-600"/>
               <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
