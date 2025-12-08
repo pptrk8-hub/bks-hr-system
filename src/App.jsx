@@ -603,6 +603,17 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
     setViewMode('form');
   };
 
+  const handleDelete = async (id) => {
+    if (!confirm("คุณแน่ใจหรือไม่ที่จะลบรายการนี้? การกระทำนี้ไม่สามารถย้อนกลับได้")) return;
+    try {
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaves', id));
+      showToast("ลบรายการเรียบร้อย", "success");
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+      showToast("เกิดข้อผิดพลาดในการลบ", "error");
+    }
+  };
+
   const handleSubmit = async (e) => { 
     e.preventDefault(); 
     if(!form.staffId || !form.start || !form.end) return showToast("กรุณากรอกข้อมูล", 'error'); 
@@ -687,9 +698,12 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
       ) : (
         <div className="space-y-4 animate-fade-in"><div className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg"><Filter size={16} className="text-gray-400"/><select className="bg-transparent outline-none w-full text-sm" value={selectedUserFilter} onChange={e => setSelectedUserFilter(e.target.value)}><option value="">ดูทั้งหมด</option>{usersData.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></div><div className="overflow-hidden border rounded-lg"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700"><tr><th className="p-3">ชื่อ</th><th className="p-3">ประเภท</th><th className="p-3">วันที่</th><th className="p-3">จำนวน</th><th className="p-3">หลักฐาน</th>{currentUser.role === 'Super Admin' && <th className="p-3 text-center">จัดการ</th>}</tr></thead><tbody>{filteredLeaves.map(l => (<tr key={l.id} className="border-b hover:bg-gray-50"><td className="p-3 font-medium">{l.staffName}</td><td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${LEAVE_TYPES.find(t=>t.id===l.leaveType)?.color}`}>{LEAVE_TYPES.find(t=>t.id===l.leaveType)?.label}</span></td><td className="p-3 text-gray-500">{formatDateThai(l.startDate)} - {formatDateThai(l.endDate)}</td><td className="p-3">{l.daysCount} วัน</td><td className="p-3">{l.evidenceImage ? <a href={l.evidenceImage} target="_blank" className="text-blue-600 flex items-center gap-1"><FileText size={16}/> ดูรูป</a> : '-'}</td>
           {currentUser.role === 'Super Admin' && (
-            <td className="p-3 text-center">
-              <button onClick={() => handleEdit(l)} className="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-orange-100 hover:text-orange-600 transition">
+            <td className="p-3 text-center flex justify-center gap-2">
+              <button onClick={() => handleEdit(l)} className="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-orange-100 hover:text-orange-600 transition" title="แก้ไข">
                 <Edit size={16} />
+              </button>
+              <button onClick={() => handleDelete(l.id)} className="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-red-100 hover:text-red-600 transition" title="ลบ">
+                <Trash2 size={16} />
               </button>
             </td>
           )}
@@ -828,8 +842,8 @@ export default function BKSHRApp() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  const [customLogo, setCustomLogo] = useState(null);
-  
+  const [customLogo, setCustomLogo] = useState(null); // Local state for immediate preview
+
   // Forgot Password State
   const [view, setView] = useState('login'); // 'login' or 'forgot'
   const [forgotEmail, setForgotEmail] = useState('');
@@ -890,22 +904,7 @@ export default function BKSHRApp() {
   }, [authUser]);
 
   const showToast = (message, type = 'success') => setToast({ message, type });
-  
   const handleLogin = (e) => { e.preventDefault(); const user = usersData.find(u => (u.username === loginForm.user || u.name === loginForm.user) && u.password === loginForm.pass && u.status !== 'disabled'); if (user) { setCurrentUser(user); setActiveTab('dashboard'); showToast(`ยินดีต้อนรับ ${user.name}`); } else { showToast("รหัสผ่านไม่ถูกต้อง", 'error'); } };
-  
-  const handleForgotPassword = (e) => {
-    e.preventDefault();
-    const user = usersData.find(u => u.username === forgotEmail || u.email === forgotEmail);
-    if (user && user.email) {
-      showToast(`ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ ${user.email} เรียบร้อยแล้ว (จำลอง)`, 'success');
-      setTimeout(() => setView('login'), 2000);
-    } else if (user) {
-      showToast(`ผู้ใช้ ${user.name} ยังไม่ได้ลงทะเบียนอีเมลในระบบ กรุณาติดต่อ Admin`, 'error');
-    } else {
-      showToast('ไม่พบข้อมูลผู้ใช้ในระบบ', 'error');
-    }
-  };
-
   const handleUpdateUser = async (uid, data) => { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), data); showToast("บันทึกสำเร็จ"); const updatedUser = { ...currentUser, ...data }; if (currentUser.id === uid) setCurrentUser(updatedUser); setUsersData(prev => prev.map(u => u.id === uid ? { ...u, ...data } : u)); };
   const handleResetPassword = async (user) => { if(!confirm(`รีเซ็ตรหัสผ่าน ${user.name} เป็น ${DEFAULT_PASSWORD}?`)) return; await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', user.id), { password: DEFAULT_PASSWORD }); showToast("รีเซ็ตรหัสเรียบร้อย"); };
   const handleAddUser = async (newUser) => { if(usersData.some(u => u.username === newUser.username)) return showToast("Username ซ้ำ", 'error'); const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...newUser, createdAt: serverTimestamp() }); setUsersData([...usersData, { id: docRef.id, ...newUser }]); showToast("เพิ่มผู้ใช้สำเร็จ"); };
@@ -921,6 +920,19 @@ export default function BKSHRApp() {
         showToast("อัปเดตโลโก้เรียบร้อย (เฉพาะเครื่องนี้)");
       };
       reader.readAsDataURL(file);
+    }
+  };
+  
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    const user = usersData.find(u => u.username === forgotEmail || u.email === forgotEmail);
+    if (user && user.email) {
+      showToast(`ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ ${user.email} เรียบร้อยแล้ว (จำลอง)`, 'success');
+      setTimeout(() => setView('login'), 2000);
+    } else if (user) {
+      showToast(`ผู้ใช้ ${user.name} ยังไม่ได้ลงทะเบียนอีเมลในระบบ กรุณาติดต่อ Admin`, 'error');
+    } else {
+      showToast('ไม่พบข้อมูลผู้ใช้ในระบบ', 'error');
     }
   };
 
