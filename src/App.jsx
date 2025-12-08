@@ -41,7 +41,7 @@ const DEFAULT_PASSWORD = '1234';
 const THAI_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 const THAI_MONTHS_FULL = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
 
-// Initial Seed Data (Added new user: orasa, areeya)
+// Initial Seed Data
 const INITIAL_USERS = [
   { name: "นายพลภัทร ธีระกุล", role: 'Super Admin', position: 'ผู้อำนวยการโรงเรียน', username: 'phonlaphat', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางสาวทิพวรรณ ศรีทองแก้ว", role: 'Super Admin', position: 'รองผู้อำนวยการโรงเรียน', username: 'tippawan', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
@@ -76,6 +76,7 @@ const LEAVE_TYPES = [
 
 // --- 3. HELPER FUNCTIONS ---
 const getCycleInfo = (dateObj) => {
+  if (!(dateObj instanceof Date) || isNaN(dateObj)) return { cycle: 1, year: new Date().getFullYear(), label: '-' };
   const month = dateObj.getMonth();
   const year = dateObj.getFullYear();
   if (month >= 3 && month <= 8) return { cycle: 1, year: year, label: `รอบที่ 1 (เม.ย. - ก.ย. ${year + 543})` };
@@ -86,19 +87,23 @@ const getCycleInfo = (dateObj) => {
 };
 
 const calculateDays = (start, end, type) => {
+  if (!start || !end) return 0;
   if (type === 'half_day') return 0.5;
   if (type === 'late') return 0;
   const s = new Date(start); const e = new Date(end);
+  if (isNaN(s.getTime()) || isNaN(e.getTime())) return 0; 
   return Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1; 
 };
 
 const formatDateThai = (dateString) => {
   if (!dateString) return "-";
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "-"; 
   return `${date.getDate()} ${THAI_MONTHS[date.getMonth()]} ${date.getFullYear() + 543}`;
 };
 
 const formatCurrency = (amount) => {
+  if (isNaN(amount)) return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(0);
   return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(amount || 0);
 };
 
@@ -248,7 +253,9 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   const currentMonthLeaves = leaves.filter(l => {
+    if (!l.startDate) return false; // Fix: Check if startDate exists
     const d = new Date(l.startDate);
+    if (isNaN(d.getTime())) return false; // Fix: Check if date is valid
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
   });
 
@@ -560,6 +567,166 @@ const ProfileModule = ({ currentUser, onUpdateProfile, showToast }) => {
   );
 };
 
+const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
+  const [leaves, setLeaves] = useState([]);
+  const [viewMode, setViewMode] = useState('list');
+  const [selectedUserFilter, setSelectedUserFilter] = useState('');
+  const [form, setForm] = useState({ staffId: '', type: 'sick', start: '', end: '', reason: '', evidenceImage: null, daysCount: 0 });
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => { if (!authUser) return; const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves')); const unsub = onSnapshot(q, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); data.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); setLeaves(data); }); return () => unsub(); }, [authUser]);
+  
+  const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { if (file.size > 1048576) { alert("ไฟล์ภาพใหญ่เกินไป (ต้องไม่เกิน 1MB)"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, evidenceImage: reader.result }); reader.readAsDataURL(file); } };
+  
+  // Auto-calculate days when dates change (only if not manually overridden in edit mode - but for simplicity, we recalc and let user adjust)
+  useEffect(() => {
+    if (form.start && form.end) {
+       const calculated = calculateDays(form.start, form.end, form.type);
+       // Only update if it's different to prevent loops, and in edit mode user can override
+       if(!isEditMode) setForm(prev => ({...prev, daysCount: calculated}));
+    }
+  }, [form.start, form.end, form.type]);
+
+  const handleEdit = (leave) => {
+    setForm({
+      staffId: leave.staffId,
+      type: leave.leaveType,
+      start: leave.startDate,
+      end: leave.endDate,
+      reason: leave.reason,
+      evidenceImage: leave.evidenceImage,
+      daysCount: leave.daysCount // Load existing days count
+    });
+    setEditingId(leave.id);
+    setIsEditMode(true);
+    setViewMode('form');
+  };
+
+  const handleSubmit = async (e) => { 
+    e.preventDefault(); 
+    if(!form.staffId || !form.start || !form.end) return showToast("กรุณากรอกข้อมูล", 'error'); 
+    
+    const staff = usersData.find(u => u.id === form.staffId); 
+    if (!staff) return showToast("ไม่พบข้อมูลพนักงาน", 'error'); 
+
+    const cycle = getCycleInfo(new Date(form.start)); 
+    // Use the daysCount from form (which might be edited by Super Admin)
+    const days = Number(form.daysCount); 
+
+    const leaveData = { 
+      staffId: staff.id, 
+      staffName: staff.name, 
+      leaveType: form.type, 
+      startDate: form.start, 
+      endDate: form.end, 
+      reason: form.reason, 
+      daysCount: days, 
+      cycle: cycle.cycle, 
+      fiscalYear: cycle.year, 
+      cycleLabel: cycle.label, 
+      recordedBy: currentUser.name, 
+      evidenceImage: form.evidenceImage 
+    };
+
+    if (isEditMode && editingId) {
+       await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaves', editingId), leaveData);
+       showToast("แก้ไขข้อมูลเรียบร้อย", 'success');
+    } else {
+       await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leaves'), { ...leaveData, createdAt: serverTimestamp() }); 
+       showToast("บันทึกวันลาสำเร็จ", 'success'); 
+    }
+    
+    setViewMode('list'); 
+    setForm({ staffId: '', type: 'sick', start: '', end: '', reason: '', evidenceImage: null, daysCount: 0 }); 
+    setIsEditMode(false);
+    setEditingId(null);
+  };
+  
+  const filteredLeaves = selectedUserFilter ? leaves.filter(l => l.staffId === selectedUserFilter) : leaves;
+  
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold flex items-center gap-2"><Calendar className="text-blue-600"/> จัดการวันลา</h2><button onClick={() => { setViewMode(viewMode === 'list' ? 'form' : 'list'); setIsEditMode(false); setForm({ staffId: '', type: 'sick', start: '', end: '', reason: '', evidenceImage: null, daysCount: 0 }); }} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">{viewMode === 'list' ? '+ บันทึกวันลา' : 'ดูประวัติ'}</button></div>
+      {viewMode === 'form' ? (
+        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-4 animate-fade-in">
+          <div className={`p-3 rounded-lg border mb-4 ${isEditMode ? 'bg-orange-50 border-orange-200' : 'bg-blue-50 border-blue-200'}`}>
+            <h3 className="font-bold text-sm flex items-center gap-2">
+              {isEditMode ? <><Edit size={18}/> แก้ไขข้อมูลการลา</> : <><Plus size={18}/> บันทึกการลาใหม่</>}
+            </h3>
+          </div>
+
+          <div><label className="text-sm font-bold text-gray-500">เลือกบุคลากร</label><select className="w-full p-2 border rounded" value={form.staffId} onChange={e => setForm({...form, staffId: e.target.value})}><option value="">-- เลือก --</option>{usersData.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></div>
+          <div><label className="text-sm font-bold text-gray-500">ประเภท</label><select className="w-full p-2 border rounded" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>{LEAVE_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}</select></div>
+          <div className="grid grid-cols-2 gap-4"><div><label className="text-sm font-bold text-gray-500">เริ่ม</label><input type="date" className="w-full p-2 border rounded" value={form.start} onChange={e => setForm({...form, start: e.target.value})} /></div><div><label className="text-sm font-bold text-gray-500">ถึง</label><input type="date" className="w-full p-2 border rounded" value={form.end} onChange={e => setForm({...form, end: e.target.value})} /></div></div>
+          
+          {/* Days Count - Editable for Super Admin */}
+          <div>
+            <label className="text-sm font-bold text-gray-500 flex justify-between">
+              <span>จำนวนวัน (คำนวณ)</span>
+              {currentUser.role === 'Super Admin' && <span className="text-xs text-orange-500">*แก้ไขได้เฉพาะ Super Admin</span>}
+            </label>
+            <input 
+              type="number" 
+              step="0.5"
+              className={`w-full p-2 border rounded ${currentUser.role === 'Super Admin' ? 'bg-white' : 'bg-gray-100'}`}
+              value={form.daysCount} 
+              onChange={e => setForm({...form, daysCount: e.target.value})}
+              readOnly={currentUser.role !== 'Super Admin'}
+            />
+          </div>
+
+          <div><label className="text-sm font-bold text-gray-500">เหตุผล</label><textarea className="w-full p-2 border rounded" rows={3} value={form.reason} onChange={e => setForm({...form, reason: e.target.value})}></textarea></div>
+          <div><label className="text-sm font-bold text-gray-500">แนบหลักฐาน (ถ้ามี)</label><div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 relative"><input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />{form.evidenceImage ? (<div className="flex flex-col items-center"><img src={form.evidenceImage} alt="Preview" className="h-32 object-contain rounded mb-2" /><span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle size={12}/> อัปโหลดแล้ว</span></div>) : (<div className="flex flex-col items-center text-gray-500"><Upload size={24} className="mb-2"/><span className="text-sm">คลิกเพื่อแนบรูปภาพ</span></div>)}</div></div>
+          
+          <div className="flex gap-2">
+            {isEditMode && <button type="button" onClick={() => { setIsEditMode(false); setViewMode('list'); }} className="w-full bg-gray-300 text-gray-700 py-2 rounded font-bold">ยกเลิก</button>}
+            <button className={`w-full text-white py-2 rounded font-bold ${isEditMode ? 'bg-orange-500 hover:bg-orange-600' : 'bg-blue-600 hover:bg-blue-700'}`}>{isEditMode ? 'บันทึกการแก้ไข' : 'บันทึกข้อมูล'}</button>
+          </div>
+        </form>
+      ) : (
+        <div className="space-y-4 animate-fade-in"><div className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg"><Filter size={16} className="text-gray-400"/><select className="bg-transparent outline-none w-full text-sm" value={selectedUserFilter} onChange={e => setSelectedUserFilter(e.target.value)}><option value="">ดูทั้งหมด</option>{usersData.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></div><div className="overflow-hidden border rounded-lg"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700"><tr><th className="p-3">ชื่อ</th><th className="p-3">ประเภท</th><th className="p-3">วันที่</th><th className="p-3">จำนวน</th><th className="p-3">หลักฐาน</th>{currentUser.role === 'Super Admin' && <th className="p-3 text-center">จัดการ</th>}</tr></thead><tbody>{filteredLeaves.map(l => (<tr key={l.id} className="border-b hover:bg-gray-50"><td className="p-3 font-medium">{l.staffName}</td><td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${LEAVE_TYPES.find(t=>t.id===l.leaveType)?.color}`}>{LEAVE_TYPES.find(t=>t.id===l.leaveType)?.label}</span></td><td className="p-3 text-gray-500">{formatDateThai(l.startDate)} - {formatDateThai(l.endDate)}</td><td className="p-3">{l.daysCount} วัน</td><td className="p-3">{l.evidenceImage ? <a href={l.evidenceImage} target="_blank" className="text-blue-600 flex items-center gap-1"><FileText size={16}/> ดูรูป</a> : '-'}</td>
+          {currentUser.role === 'Super Admin' && (
+            <td className="p-3 text-center">
+              <button onClick={() => handleEdit(l)} className="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-orange-100 hover:text-orange-600 transition">
+                <Edit size={16} />
+              </button>
+            </td>
+          )}
+        </tr>))}</tbody></table></div></div>
+      )}
+    </div>
+  );
+};
+
+const TrainingModule = ({ currentUser, authUser, showToast, usersData }) => {
+  const [trainings, setTrainings] = useState([]);
+  const [allTrainings, setAllTrainings] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState('my_trainings');
+  const [form, setForm] = useState({ topic: '', org: '', startDate: '', endDate: '', hours: 0, type: 'On-site', evidenceImage: null });
+  useEffect(() => { if (!authUser) return; const qMy = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')); const unsubMy = onSnapshot(qMy, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); setTrainings(data.filter(t => t.userId === currentUser.id)); }); if (currentUser.role !== 'User') { const qAll = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')); const unsubAll = onSnapshot(qAll, (snap) => setAllTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => { unsubMy(); unsubAll(); }; } return () => unsubMy(); }, [currentUser, authUser]);
+  const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { if (file.size > 1048576) { alert("ไฟล์ภาพใหญ่เกินไป"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, evidenceImage: reader.result }); reader.readAsDataURL(file); } };
+  const addTraining = async (e) => { e.preventDefault(); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'trainings'), { ...form, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); showToast("บันทึกการอบรมเรียบร้อย"); setIsModalOpen(false); setForm({ topic: '', org: '', startDate: '', endDate: '', hours: 0, type: 'On-site', evidenceImage: null }); };
+  const trainingSummary = useMemo(() => { if (currentUser.role === 'User') return []; const summary = usersData.map(user => { const userTrainings = allTrainings.filter(t => t.userId === user.id); const totalHours = userTrainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0); const count = userTrainings.length; return { ...user, totalHours, count }; }).sort((a, b) => b.totalHours - a.totalHours); return summary; }, [allTrainings, usersData]);
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold flex items-center gap-2"><BookOpen className="text-green-600"/> ระบบประวัติการอบรม</h2><div className="flex gap-2">{currentUser.role !== 'User' && (<button onClick={() => setViewMode(viewMode === 'my_trainings' ? 'all_summary' : 'my_trainings')} className="bg-orange-100 text-orange-700 px-3 py-2 rounded-lg text-sm hover:bg-orange-200 flex items-center gap-1">{viewMode === 'my_trainings' ? <><BarChart2 size={16}/> ดูภาพรวมทั้งโรงเรียน</> : <><User size={16}/> ดูของฉัน</>}</button>)}<button onClick={() => setIsModalOpen(true)} className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700">+ เพิ่มรายการ</button></div></div>{viewMode === 'all_summary' && currentUser.role !== 'User' ? (<div className="animate-fade-in"><h3 className="font-bold text-lg mb-4 text-gray-700 border-b pb-2">📊 สรุปการพัฒนาบุคลากร (เรียงตามชั่วโมง)</h3><div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700"><tr><th className="p-3 text-center">อันดับ</th><th className="p-3">ชื่อ-สกุล</th><th className="p-3">ตำแหน่ง</th><th className="p-3 text-center">จำนวนครั้ง</th><th className="p-3 text-center">ชั่วโมงสะสม</th></tr></thead><tbody>{trainingSummary.map((s, idx) => (<tr key={s.id} className="border-b hover:bg-gray-50"><td className="p-3 text-center font-bold text-gray-500">{idx + 1}</td><td className="p-3 font-medium">{s.name}</td><td className="p-3 text-gray-500">{s.position}</td><td className="p-3 text-center">{s.count}</td><td className="p-3 text-center"><span className="bg-green-100 text-green-800 px-2 py-1 rounded-full font-bold">{s.totalHours} ชม.</span></td></tr>))}</tbody></table></div></div>) : (<div className="space-y-3 animate-fade-in"><div className="flex justify-between items-end mb-2 border-b pb-2"><h3 className="font-bold text-gray-700">รายการอบรมของฉัน</h3><span className="text-sm text-gray-500">รวมทั้งหมด: <span className="font-bold text-green-600">{trainings.reduce((a,b)=>a+(Number(b.hours)||0),0)}</span> ชั่วโมง</span></div>{trainings.map(t => (<div key={t.id} className="p-4 border border-green-100 bg-green-50/30 rounded-xl hover:shadow-sm transition flex justify-between items-start"><div><h4 className="font-bold text-gray-800">{t.topic}</h4><p className="text-sm text-gray-600">{t.org} <span className="mx-2">•</span> <span className="bg-white px-2 py-0.5 rounded border border-green-200 text-xs">{t.type}</span></p><p className="text-xs text-gray-400 mt-1">{formatDateThai(t.startDate)} {t.startDate !== t.endDate && `- ${formatDateThai(t.endDate)}`}</p></div><div className="flex flex-col items-end gap-2"><span className="text-sm font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full">{t.hours} ชม.</span>{t.evidenceImage && <a href={t.evidenceImage} target="_blank" className="text-xs text-blue-600 flex items-center gap-1 hover:underline"><FileText size={12}/> ดูเกียรติบัตร</a>}</div></div>))}{trainings.length === 0 && <p className="text-center text-gray-400 py-10">ยังไม่มีข้อมูลการอบรม</p>}</div>)}<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="เพิ่มประวัติการอบรม"><form onSubmit={addTraining} className="space-y-3"><div><label className="text-xs font-bold text-gray-500">ชื่อหลักสูตร</label><input className="w-full p-2 border rounded" required value={form.topic} onChange={e => setForm({...form, topic: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">หน่วยงานที่จัด</label><input className="w-full p-2 border rounded" required value={form.org} onChange={e => setForm({...form, org: e.target.value})} /></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">เริ่ม</label><input type="date" className="w-full p-2 border rounded" required value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">ถึง</label><input type="date" className="w-full p-2 border rounded" required value={form.endDate} onChange={e => setForm({...form, endDate: e.target.value})} /></div></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">จำนวนชั่วโมง</label><input type="number" className="w-full p-2 border rounded" required value={form.hours} onChange={e => setForm({...form, hours: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">ประเภท</label><select className="w-full p-2 border rounded" value={form.type} onChange={e => setForm({...form, type: e.target.value})}><option>On-site</option><option>Online</option><option>PLC</option></select></div></div><div><label className="text-xs font-bold text-gray-500">แนบเกียรติบัตร (รูปภาพ)</label><div className="p-3 border-2 border-dashed rounded text-center text-xs text-gray-400 relative hover:bg-gray-50"><input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />{form.evidenceImage ? <span className="text-green-600 flex items-center justify-center gap-1"><CheckCircle size={12}/> อัปโหลดแล้ว</span> : <span className="flex items-center justify-center gap-1"><Upload size={12}/> คลิกเลือกไฟล์</span>}</div></div><button className="w-full bg-green-600 text-white py-2 rounded font-bold mt-2">บันทึก</button></form></Modal></div>
+  );
+};
+
+const PortfolioModule = ({ currentUser, authUser, showToast }) => {
+  const [items, setItems] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form, setForm] = useState({ title: '', year: new Date().getFullYear() + 543, type: 'รางวัล', role: 'เจ้าของผลงาน', description: '', link: '', image: null, pdf: null });
+  useEffect(() => { if (!authUser) return; const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')); const unsub = onSnapshot(q, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); setItems(data.filter(i => i.userId === currentUser.id)); }); return () => unsub(); }, [currentUser, authUser]);
+  const handleImageChange = (e) => { const file = e.target.files[0]; if(file) { if (file.size > 1048576) { alert("รูปภาพต้องขนาดไม่เกิน 1MB"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, image: reader.result }); reader.readAsDataURL(file); } };
+  const handlePdfChange = (e) => { const file = e.target.files[0]; if(file) { if (file.size > 2097152) { alert("ไฟล์ PDF ต้องขนาดไม่เกิน 2MB"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, pdf: reader.result }); reader.readAsDataURL(file); } };
+  const addItem = async (e) => { e.preventDefault(); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio'), { ...form, userId: currentUser.id, createdAt: serverTimestamp() }); showToast("บันทึกผลงานเรียบร้อย"); setIsModalOpen(false); setForm({ title: '', year: new Date().getFullYear() + 543, type: 'รางวัล', role: 'เจ้าของผลงาน', description: '', link: '', image: null, pdf: null }); };
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold flex items-center gap-2"><Award className="text-purple-600"/> แฟ้มผลงาน (Portfolio)</h2><button onClick={() => setIsModalOpen(true)} className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">+ เพิ่มผลงาน</button></div><div className="grid grid-cols-1 md:grid-cols-2 gap-4">{items.map(t => (<div key={t.id} className="p-4 border border-purple-100 bg-purple-50/30 rounded-xl hover:shadow-md transition flex flex-col justify-between"><div><div className="flex justify-between items-start mb-2"><div className="flex items-center gap-2"><span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">{t.type}</span><span className="text-xs text-gray-400">ปี {t.year}</span></div></div><h4 className="font-bold text-gray-800 text-lg mb-1">{t.title}</h4><p className="text-xs text-gray-500 mb-2">บทบาท: {t.role}</p><p className="text-sm text-gray-600 line-clamp-2 mb-3">{t.description || '-'}</p>{(t.image || t.pdf || t.link) && (<div className="flex gap-2 mt-2 pt-2 border-t border-purple-100">{t.image && <a href={t.image} target="_blank" className="text-xs flex items-center gap-1 text-blue-600 hover:underline"><Camera size={12}/> ดูรูป</a>}{t.pdf && <a href={t.pdf} target="_blank" className="text-xs flex items-center gap-1 text-red-600 hover:underline"><File size={12}/> ดู PDF</a>}{t.link && <a href={t.link} target="_blank" className="text-xs flex items-center gap-1 text-gray-600 hover:underline"><LinkIcon size={12}/> ลิงก์</a>}</div>)}</div></div>))}</div>{items.length === 0 && <p className="text-center text-gray-400 py-10">ยังไม่มีผลงาน</p>}<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="เพิ่มผลงานดีเด่น"><form onSubmit={addItem} className="space-y-3"><div><label className="text-xs font-bold text-gray-500">ชื่อผลงาน/รางวัล</label><input className="w-full p-2 border rounded" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">ปี พ.ศ.</label><input type="number" className="w-full p-2 border rounded" required value={form.year} onChange={e => setForm({...form, year: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">ประเภท</label><select className="w-full p-2 border rounded" value={form.type} onChange={e => setForm({...form, type: e.target.value})}><option>รางวัล</option><option>นวัตกรรม</option><option>วิจัย</option><option>Best Practice</option></select></div></div><div><label className="text-xs font-bold text-gray-500">บทบาทของตนเอง</label><input className="w-full p-2 border rounded" value={form.role} onChange={e => setForm({...form, role: e.target.value})} placeholder="เช่น เจ้าของผลงาน, ทีมงาน, ที่ปรึกษา" /></div><div><label className="text-xs font-bold text-gray-500">คำอธิบายผลงาน (ย่อหน้า)</label><textarea className="w-full p-2 border rounded" rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})}></textarea></div><div className="grid grid-cols-2 gap-3 pt-2 border-t"><div><label className="text-xs font-bold text-gray-500 block mb-1">รูปภาพผลงาน</label><div className="relative border border-dashed p-2 rounded text-center hover:bg-gray-50 cursor-pointer"><input type="file" accept="image/*" onChange={handleImageChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>{form.image ? <span className="text-green-600 text-xs flex items-center justify-center gap-1"><CheckCircle size={10}/> พร้อมอัปโหลด</span> : <span className="text-xs text-gray-400 flex items-center justify-center gap-1"><Camera size={12}/> เลือกรูป</span>}</div></div><div><label className="text-xs font-bold text-gray-500 block mb-1">รายงาน PDF</label><div className="relative border border-dashed p-2 rounded text-center hover:bg-gray-50 cursor-pointer"><input type="file" accept="application/pdf" onChange={handlePdfChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>{form.pdf ? <span className="text-green-600 text-xs flex items-center justify-center gap-1"><CheckCircle size={10}/> พร้อมอัปโหลด</span> : <span className="text-xs text-gray-400 flex items-center justify-center gap-1"><File size={12}/> เลือก PDF</span>}</div></div></div><div><label className="text-xs font-bold text-gray-500">ลิงก์ YouTube / Google Drive</label><input className="w-full p-2 border rounded" value={form.link} onChange={e => setForm({...form, link: e.target.value})} placeholder="https://..." /></div><button className="w-full bg-purple-600 text-white py-2 rounded font-bold mt-2">บันทึกข้อมูล</button></form></Modal></div>
+  );
+};
+
 const ReportModule = ({ usersData, authUser }) => {
   const [activeReport, setActiveReport] = useState('leave');
   const [leaves, setLeaves] = useState([]);
@@ -593,7 +760,12 @@ const ReportModule = ({ usersData, authUser }) => {
   useEffect(() => { if (!authUser) return; const unsubLeaves = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves')), (snap) => setLeaves(snap.docs.map(d => ({id: d.id, ...d.data()})))); const unsubTrainings = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')), (snap) => setTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); const unsubPortfolios = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')), (snap) => setPortfolios(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => { unsubLeaves(); unsubTrainings(); unsubPortfolios(); }; }, [authUser]);
   
   const handlePrint = () => window.print();
-  const leaveReportData = useMemo(() => leaves.filter(l => { const d = new Date(l.startDate); return d.getMonth() === parseInt(reportMonth) && d.getFullYear() === parseInt(reportYear); }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate)), [leaves, reportMonth, reportYear]);
+  const leaveReportData = useMemo(() => leaves.filter(l => { 
+    if(!l.startDate) return false;
+    const d = new Date(l.startDate); 
+    if(isNaN(d.getTime())) return false;
+    return d.getMonth() === parseInt(reportMonth) && d.getFullYear() === parseInt(reportYear); 
+  }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate)), [leaves, reportMonth, reportYear]);
   
   // This hook now works because sortedUsers is defined above
   const leaveSummaryData = useMemo(() => { const reportDateObj = new Date(reportYear, reportMonth, 1); const reportCycleInfo = getCycleInfo(reportDateObj); const cycleLeaves = leaves.filter(l => l.cycle === reportCycleInfo.cycle && l.fiscalYear === reportCycleInfo.year); const summary = sortedUsers.map(staff => { const staffLeaves = cycleLeaves.filter(l => l.staffName === staff.name); const totals = { name: staff.name, sick: 0, personal: 0, half_day: 0, maternity: 0, religious: 0, late: 0, totalDays: 0 }; staffLeaves.forEach(l => { const days = Number(l.daysCount) || 0; totals.totalDays += days; if (l.leaveType === 'sick') totals.sick += days; else if (l.leaveType === 'personal') totals.personal += days; else if (l.leaveType === 'half_day') totals.half_day += days; else if (l.leaveType === 'maternity') totals.maternity += days; else if (l.leaveType === 'religious') totals.religious += days; else if (l.leaveType === 'late') totals.late += 1; }); return totals; }); return { cycleLabel: reportCycleInfo.label, summary }; }, [leaves, reportMonth, reportYear, sortedUsers]);
