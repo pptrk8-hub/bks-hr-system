@@ -41,28 +41,28 @@ const DEFAULT_PASSWORD = '1234';
 const THAI_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 const THAI_MONTHS_FULL = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
 
-// Initial Seed Data (Including Orasa and Areeya)
+// Initial Seed Data (Added new user: orasa, areeya)
 const INITIAL_USERS = [
-  { name: "นายพลภัทร ธีระกุล", role: 'Super Admin', position: 'ผู้อำนวยการโรงเรียน', username: 'phonlaphat', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวทิพวรรณ ศรีทองแก้ว", role: 'Super Admin', position: 'รองผู้อำนวยการโรงเรียน', username: 'tippawan', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสุมาลี บุญชู", role: 'Admin HR', position: 'ครู (เจ้าหน้าที่บุคคล)', username: 'sumalee', department: 'บุคคล', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางรอยฮัน โต๊ะดำ", role: 'User', position: 'ครู', username: 'royhan', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวจุฑาภรณ์ อุมาสะ", role: 'User', position: 'ครู', username: 'jutaporn', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวจันทนา บุตรฤทธิ์", role: 'User', position: 'ครู', username: 'jantana', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางอุษณี บุญทิพย์", role: 'User', position: 'ครู', username: 'usanee', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวกษมา ดินแดง", role: 'User', position: 'ครู', username: 'kasama', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวจิตสุภา บุญถาวร", role: 'User', position: 'ครู', username: 'jitsupa', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวนุรไลลา สาและ", role: 'User', position: 'ครู', username: 'nurlaila', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวบริมาส มะลิผล", role: 'User', position: 'ครู', username: 'barimas', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวมลิวัลย์ ชุมบุญ", role: 'User', position: 'ครู', username: 'maliwan', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางวรัญญา สารสิทธิ์", role: 'User', position: 'ครู', username: 'waranya', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวฮัซนา ดาแล่หมัน", role: 'User', position: 'ครู', username: 'husna', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวนุรอาซีกีน ยาลอ", role: 'User', position: 'ครู', username: 'nuraseekeen', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวภาอีด๊ะ อ่าวลึกน้อย", role: 'User', position: 'ครู', username: 'paeeda', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวอรษา ชาตรีวงศ์", role: 'User', position: 'ครู', username: 'orasa', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นางสาวอารียา มาลัยกุล", role: 'User', position: 'ครู', username: 'areeya', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นายอิรอน นายาว", role: 'User', position: 'ครู', username: 'iron', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0 },
-  { name: "นายอมรศักดิ์ สระวารี", role: 'User', position: 'นักการภารโรง', username: 'amornsak', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0 }
+  { name: "นายพลภัทร ธีระกุล", role: 'Super Admin', position: 'ผู้อำนวยการโรงเรียน', username: 'phonlaphat', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวทิพวรรณ ศรีทองแก้ว", role: 'Super Admin', position: 'รองผู้อำนวยการโรงเรียน', username: 'tippawan', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสุมาลี บุญชู", role: 'Admin HR', position: 'ครู (เจ้าหน้าที่บุคคล)', username: 'sumalee', department: 'บุคคล', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางรอยฮัน โต๊ะดำ", role: 'User', position: 'ครู', username: 'royhan', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวจุฑาภรณ์ อุมาสะ", role: 'User', position: 'ครู', username: 'jutaporn', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวจันทนา บุตรฤทธิ์", role: 'User', position: 'ครู', username: 'jantana', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางอุษณี บุญทิพย์", role: 'User', position: 'ครู', username: 'usanee', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวกษมา ดินแดง", role: 'User', position: 'ครู', username: 'kasama', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวจิตสุภา บุญถาวร", role: 'User', position: 'ครู', username: 'jitsupa', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวนุรไลลา สาและ", role: 'User', position: 'ครู', username: 'nurlaila', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวบริมาส มะลิผล", role: 'User', position: 'ครู', username: 'barimas', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวมลิวัลย์ ชุมบุญ", role: 'User', position: 'ครู', username: 'maliwan', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางวรัญญา สารสิทธิ์", role: 'User', position: 'ครู', username: 'waranya', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวฮัซนา ดาแล่หมัน", role: 'User', position: 'ครู', username: 'husna', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวนุรอาซีกีน ยาลอ", role: 'User', position: 'ครู', username: 'nuraseekeen', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวภาอีด๊ะ อ่าวลึกน้อย", role: 'User', position: 'ครู', username: 'paeeda', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวอรษา ชาตรีวงศ์", role: 'User', position: 'ครู', username: 'orasa', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นางสาวอารียา มาลัยกุล", role: 'User', position: 'ครู', username: 'areeya', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นายอิรอน นายาว", role: 'User', position: 'ครู', username: 'iron', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นายอมรศักดิ์ สระวารี", role: 'User', position: 'นักการภารโรง', username: 'amornsak', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 }
 ];
 
 const LEAVE_TYPES = [
@@ -398,13 +398,117 @@ const SalaryModule = ({ usersData, onUpdateUser, showToast }) => {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentUserEdit, setCurrentUserEdit] = useState(null);
-  const [formData, setFormData] = useState({ salary: 0, academic: 0 });
+  const [formData, setFormData] = useState({ salary: 0, academic: 0, backPay: 0 });
   const filteredUsers = usersData.filter(u => u.name.includes(search));
-  const totalBudget = usersData.reduce((acc, curr) => acc + (Number(curr.salary) || 0) + (Number(curr.academic) || 0), 0);
-  const handleEdit = (user) => { setCurrentUserEdit(user); setFormData({ salary: user.salary || 0, academic: user.academic || 0 }); setIsModalOpen(true); };
-  const handleSave = () => { onUpdateUser(currentUserEdit.id, { salary: Number(formData.salary), academic: Number(formData.academic) }); setIsModalOpen(false); showToast("อัปเดตข้อมูลเงินเดือนเรียบร้อย"); };
+  
+  // Calculate Total Budget (Salary + Academic + BackPay)
+  const totalBudget = usersData.reduce((acc, curr) => acc + (Number(curr.salary) || 0) + (Number(curr.academic) || 0) + (Number(curr.backPay) || 0), 0);
+  
+  const handleEdit = (user) => { 
+    setCurrentUserEdit(user); 
+    setFormData({ 
+      salary: user.salary || 0, 
+      academic: user.academic || 0,
+      backPay: user.backPay || 0 // Load backPay
+    }); 
+    setIsModalOpen(true); 
+  };
+  
+  const handleSave = () => { 
+    onUpdateUser(currentUserEdit.id, { 
+      salary: Number(formData.salary), 
+      academic: Number(formData.academic),
+      backPay: Number(formData.backPay) // Save backPay
+    }); 
+    setIsModalOpen(false); 
+    showToast("อัปเดตข้อมูลเงินเดือนเรียบร้อย"); 
+  };
+
   return (
-    <div className="space-y-6"><div className="bg-gradient-to-r from-green-700 to-teal-600 rounded-xl p-6 text-white shadow-lg"><div className="flex justify-between items-center"><div><h3 className="text-green-100 font-medium mb-1">ยอดรวมงบประมาณรายจ่าย (เดือนนี้)</h3><p className="text-4xl font-bold">{formatCurrency(totalBudget)}</p></div><div className="bg-white/20 p-4 rounded-full"><DollarSign size={32} /></div></div></div><div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold flex items-center gap-2"><DollarSign className="text-green-600"/> จัดการข้อมูลเงินเดือน</h2><div className="relative w-64"><Search className="absolute left-3 top-2.5 text-gray-400" size={18}/><input type="text" placeholder="ค้นหาชื่อ..." className="w-full pl-10 p-2 bg-gray-50 border rounded-lg" value={search} onChange={e => setSearch(e.target.value)} /></div></div><div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700 uppercase font-bold"><tr><th className="p-3">ชื่อ-สกุล</th><th className="p-3">ตำแหน่ง</th><th className="p-3 text-right">เงินเดือน</th><th className="p-3 text-right">เงินวิทยฐานะ</th><th className="p-3 text-right text-green-700">รวมรับสุทธิ</th><th className="p-3 text-center">แก้ไข</th></tr></thead><tbody className="divide-y divide-gray-100">{filteredUsers.map(u => (<tr key={u.id} className="hover:bg-green-50/30"><td className="p-3 font-medium">{u.name}</td><td className="p-3 text-gray-500">{u.position}</td><td className="p-3 text-right">{formatCurrency(u.salary)}</td><td className="p-3 text-right">{formatCurrency(u.academic)}</td><td className="p-3 text-right font-bold text-green-700">{formatCurrency((Number(u.salary)||0) + (Number(u.academic)||0))}</td><td className="p-3 text-center"><button onClick={() => handleEdit(u)} className="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-blue-50 hover:text-blue-600"><Edit size={16}/></button></td></tr>))}</tbody></table></div></div><Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="แก้ไขข้อมูลเงินเดือน"><div className="space-y-4"><div className="bg-gray-50 p-3 rounded border"><p className="font-bold text-gray-800">{currentUserEdit?.name}</p><p className="text-xs text-gray-500">{currentUserEdit?.position}</p></div><div><label className="block text-sm font-medium text-gray-700 mb-1">อัตราเงินเดือน (บาท)</label><input type="number" className="w-full p-2 border rounded" value={formData.salary} onChange={e => setFormData({...formData, salary: e.target.value})} /></div><div><label className="block text-sm font-medium text-gray-700 mb-1">เงินวิทยฐานะ (บาท)</label><input type="number" className="w-full p-2 border rounded" value={formData.academic} onChange={e => setFormData({...formData, academic: e.target.value})} /></div><div className="pt-2 border-t flex justify-between items-center"><span className="text-sm font-bold">รวมทั้งสิ้น</span><span className="text-lg font-bold text-green-600">{formatCurrency(Number(formData.salary) + Number(formData.academic))}</span></div><button onClick={handleSave} className="w-full bg-green-600 text-white py-2 rounded font-bold hover:bg-green-700">บันทึก</button></div></Modal></div>
+    <div className="space-y-6">
+      <div className="bg-gradient-to-r from-green-700 to-teal-600 rounded-xl p-6 text-white shadow-lg">
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="text-green-100 font-medium mb-1">ยอดรวมงบประมาณรายจ่าย (เดือนนี้)</h3>
+            <p className="text-4xl font-bold">{formatCurrency(totalBudget)}</p>
+          </div>
+          <div className="bg-white/20 p-4 rounded-full"><DollarSign size={32} /></div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold flex items-center gap-2"><DollarSign className="text-green-600"/> จัดการข้อมูลเงินเดือน</h2>
+          <div className="relative w-64">
+            <Search className="absolute left-3 top-2.5 text-gray-400" size={18}/>
+            <input type="text" placeholder="ค้นหาชื่อ..." className="w-full pl-10 p-2 bg-gray-50 border rounded-lg" value={search} onChange={e => setSearch(e.target.value)} />
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-gray-50 text-gray-700 uppercase font-bold">
+              <tr>
+                <th className="p-3">ชื่อ-สกุล</th>
+                <th className="p-3">ตำแหน่ง</th>
+                <th className="p-3 text-right">เงินเดือน</th>
+                <th className="p-3 text-right">เงินวิทยฐานะ</th>
+                {/* Added Back Pay Column */}
+                <th className="p-3 text-right">ตกเบิก</th>
+                <th className="p-3 text-right text-green-700">รวมรับสุทธิ</th>
+                <th className="p-3 text-center">แก้ไข</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filteredUsers.map(u => {
+                 const total = (Number(u.salary)||0) + (Number(u.academic)||0) + (Number(u.backPay)||0);
+                 return (
+                  <tr key={u.id} className="hover:bg-green-50/30">
+                    <td className="p-3 font-medium">{u.name}</td>
+                    <td className="p-3 text-gray-500">{u.position}</td>
+                    <td className="p-3 text-right">{formatCurrency(u.salary)}</td>
+                    <td className="p-3 text-right">{formatCurrency(u.academic)}</td>
+                    <td className="p-3 text-right text-orange-600">{formatCurrency(u.backPay)}</td>
+                    <td className="p-3 text-right font-bold text-green-700">{formatCurrency(total)}</td>
+                    <td className="p-3 text-center">
+                      <button onClick={() => handleEdit(u)} className="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-blue-50 hover:text-blue-600"><Edit size={16}/></button>
+                    </td>
+                  </tr>
+                 );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="แก้ไขข้อมูลเงินเดือน">
+        <div className="space-y-4">
+          <div className="bg-gray-50 p-3 rounded border">
+            <p className="font-bold text-gray-800">{currentUserEdit?.name}</p>
+            <p className="text-xs text-gray-500">{currentUserEdit?.position}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">อัตราเงินเดือน (บาท)</label>
+            <input type="number" className="w-full p-2 border rounded" value={formData.salary} onChange={e => setFormData({...formData, salary: e.target.value})} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">เงินวิทยฐานะ (บาท)</label>
+            <input type="number" className="w-full p-2 border rounded" value={formData.academic} onChange={e => setFormData({...formData, academic: e.target.value})} />
+          </div>
+          {/* Added Back Pay Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">เงินเดือนตกเบิก (บาท)</label>
+            <input type="number" className="w-full p-2 border rounded" value={formData.backPay} onChange={e => setFormData({...formData, backPay: e.target.value})} />
+          </div>
+          <div className="pt-2 border-t flex justify-between items-center">
+            <span className="text-sm font-bold">รวมทั้งสิ้น</span>
+            <span className="text-lg font-bold text-green-600">
+              {formatCurrency(Number(formData.salary) + Number(formData.academic) + Number(formData.backPay))}
+            </span>
+          </div>
+          <button onClick={handleSave} className="w-full bg-green-600 text-white py-2 rounded font-bold hover:bg-green-700">บันทึก</button>
+        </div>
+      </Modal>
+    </div>
   );
 };
 
@@ -456,55 +560,6 @@ const ProfileModule = ({ currentUser, onUpdateProfile, showToast }) => {
   );
 };
 
-const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
-  const [leaves, setLeaves] = useState([]);
-  const [viewMode, setViewMode] = useState('list');
-  const [selectedUserFilter, setSelectedUserFilter] = useState('');
-  const [form, setForm] = useState({ staffId: '', type: 'sick', start: '', end: '', reason: '', evidenceImage: null });
-  useEffect(() => { if (!authUser) return; const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves')); const unsub = onSnapshot(q, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); data.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); setLeaves(data); }); return () => unsub(); }, [authUser]);
-  const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { if (file.size > 1048576) { alert("ไฟล์ภาพใหญ่เกินไป (ต้องไม่เกิน 1MB)"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, evidenceImage: reader.result }); reader.readAsDataURL(file); } };
-  const handleSubmit = async (e) => { e.preventDefault(); if(!form.staffId || !form.start || !form.end) return showToast("กรุณากรอกข้อมูล", 'error'); const staff = usersData.find(u => u.id === form.staffId); const cycle = getCycleInfo(new Date(form.start)); const days = calculateDays(form.start, form.end, form.type); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leaves'), { staffId: staff.id, staffName: staff.name, leaveType: form.type, startDate: form.start, endDate: form.end, reason: form.reason, daysCount: days, cycle: cycle.cycle, fiscalYear: cycle.year, cycleLabel: cycle.label, createdAt: serverTimestamp(), recordedBy: currentUser.name, evidenceImage: form.evidenceImage }); showToast("บันทึกวันลาสำเร็จ", 'success'); setViewMode('list'); setForm({ staffId: '', type: 'sick', start: '', end: '', reason: '', evidenceImage: null }); };
-  const filteredLeaves = selectedUserFilter ? leaves.filter(l => l.staffId === selectedUserFilter) : leaves;
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold flex items-center gap-2"><Calendar className="text-blue-600"/> จัดการวันลา</h2><button onClick={() => setViewMode(viewMode === 'list' ? 'form' : 'list')} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">{viewMode === 'list' ? '+ บันทึกวันลา' : 'ดูประวัติ'}</button></div>
-      {viewMode === 'form' ? (
-        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-4 animate-fade-in"><div><label className="text-sm font-bold text-gray-500">เลือกบุคลากร</label><select className="w-full p-2 border rounded" value={form.staffId} onChange={e => setForm({...form, staffId: e.target.value})}><option value="">-- เลือก --</option>{usersData.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></div><div><label className="text-sm font-bold text-gray-500">ประเภท</label><select className="w-full p-2 border rounded" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>{LEAVE_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}</select></div><div className="grid grid-cols-2 gap-4"><div><label className="text-sm font-bold text-gray-500">เริ่ม</label><input type="date" className="w-full p-2 border rounded" value={form.start} onChange={e => setForm({...form, start: e.target.value})} /></div><div><label className="text-sm font-bold text-gray-500">ถึง</label><input type="date" className="w-full p-2 border rounded" value={form.end} onChange={e => setForm({...form, end: e.target.value})} /></div></div><div><label className="text-sm font-bold text-gray-500">เหตุผล</label><textarea className="w-full p-2 border rounded" rows={3} value={form.reason} onChange={e => setForm({...form, reason: e.target.value})}></textarea></div><div><label className="text-sm font-bold text-gray-500">แนบหลักฐาน (ถ้ามี)</label><div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 relative"><input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />{form.evidenceImage ? (<div className="flex flex-col items-center"><img src={form.evidenceImage} alt="Preview" className="h-32 object-contain rounded mb-2" /><span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle size={12}/> อัปโหลดแล้ว</span></div>) : (<div className="flex flex-col items-center text-gray-500"><Upload size={24} className="mb-2"/><span className="text-sm">คลิกเพื่อแนบรูปภาพ</span></div>)}</div></div><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">บันทึก</button></form>
-      ) : (
-        <div className="space-y-4 animate-fade-in"><div className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg"><Filter size={16} className="text-gray-400"/><select className="bg-transparent outline-none w-full text-sm" value={selectedUserFilter} onChange={e => setSelectedUserFilter(e.target.value)}><option value="">ดูทั้งหมด</option>{usersData.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></div><div className="overflow-hidden border rounded-lg"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700"><tr><th className="p-3">ชื่อ</th><th className="p-3">ประเภท</th><th className="p-3">วันที่</th><th className="p-3">จำนวน</th><th className="p-3">หลักฐาน</th></tr></thead><tbody>{filteredLeaves.map(l => (<tr key={l.id} className="border-b hover:bg-gray-50"><td className="p-3 font-medium">{l.staffName}</td><td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${LEAVE_TYPES.find(t=>t.id===l.leaveType)?.color}`}>{LEAVE_TYPES.find(t=>t.id===l.leaveType)?.label}</span></td><td className="p-3 text-gray-500">{formatDateThai(l.startDate)} - {formatDateThai(l.endDate)}</td><td className="p-3">{l.daysCount} วัน</td><td className="p-3">{l.evidenceImage ? <a href={l.evidenceImage} target="_blank" className="text-blue-600 flex items-center gap-1"><FileText size={16}/> ดูรูป</a> : '-'}</td></tr>))}</tbody></table></div></div>
-      )}
-    </div>
-  );
-};
-
-const TrainingModule = ({ currentUser, authUser, showToast, usersData }) => {
-  const [trainings, setTrainings] = useState([]);
-  const [allTrainings, setAllTrainings] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useState('my_trainings');
-  const [form, setForm] = useState({ topic: '', org: '', startDate: '', endDate: '', hours: 0, type: 'On-site', evidenceImage: null });
-  useEffect(() => { if (!authUser) return; const qMy = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')); const unsubMy = onSnapshot(qMy, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); setTrainings(data.filter(t => t.userId === currentUser.id)); }); if (currentUser.role !== 'User') { const qAll = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')); const unsubAll = onSnapshot(qAll, (snap) => setAllTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => { unsubMy(); unsubAll(); }; } return () => unsubMy(); }, [currentUser, authUser]);
-  const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { if (file.size > 1048576) { alert("ไฟล์ภาพใหญ่เกินไป"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, evidenceImage: reader.result }); reader.readAsDataURL(file); } };
-  const addTraining = async (e) => { e.preventDefault(); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'trainings'), { ...form, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); showToast("บันทึกการอบรมเรียบร้อย"); setIsModalOpen(false); setForm({ topic: '', org: '', startDate: '', endDate: '', hours: 0, type: 'On-site', evidenceImage: null }); };
-  const trainingSummary = useMemo(() => { if (currentUser.role === 'User') return []; const summary = usersData.map(user => { const userTrainings = allTrainings.filter(t => t.userId === user.id); const totalHours = userTrainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0); const count = userTrainings.length; return { ...user, totalHours, count }; }).sort((a, b) => b.totalHours - a.totalHours); return summary; }, [allTrainings, usersData]);
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold flex items-center gap-2"><BookOpen className="text-green-600"/> ระบบประวัติการอบรม</h2><div className="flex gap-2">{currentUser.role !== 'User' && (<button onClick={() => setViewMode(viewMode === 'my_trainings' ? 'all_summary' : 'my_trainings')} className="bg-orange-100 text-orange-700 px-3 py-2 rounded-lg text-sm hover:bg-orange-200 flex items-center gap-1">{viewMode === 'my_trainings' ? <><BarChart2 size={16}/> ดูภาพรวมทั้งโรงเรียน</> : <><User size={16}/> ดูของฉัน</>}</button>)}<button onClick={() => setIsModalOpen(true)} className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700">+ เพิ่มรายการ</button></div></div>{viewMode === 'all_summary' && currentUser.role !== 'User' ? (<div className="animate-fade-in"><h3 className="font-bold text-lg mb-4 text-gray-700 border-b pb-2">📊 สรุปการพัฒนาบุคลากร (เรียงตามชั่วโมง)</h3><div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700"><tr><th className="p-3 text-center">อันดับ</th><th className="p-3">ชื่อ-สกุล</th><th className="p-3">ตำแหน่ง</th><th className="p-3 text-center">จำนวนครั้ง</th><th className="p-3 text-center">ชั่วโมงสะสม</th></tr></thead><tbody>{trainingSummary.map((s, idx) => (<tr key={s.id} className="border-b hover:bg-gray-50"><td className="p-3 text-center font-bold text-gray-500">{idx + 1}</td><td className="p-3 font-medium">{s.name}</td><td className="p-3 text-gray-500">{s.position}</td><td className="p-3 text-center">{s.count}</td><td className="p-3 text-center"><span className="bg-green-100 text-green-800 px-2 py-1 rounded-full font-bold">{s.totalHours} ชม.</span></td></tr>))}</tbody></table></div></div>) : (<div className="space-y-3 animate-fade-in"><div className="flex justify-between items-end mb-2 border-b pb-2"><h3 className="font-bold text-gray-700">รายการอบรมของฉัน</h3><span className="text-sm text-gray-500">รวมทั้งหมด: <span className="font-bold text-green-600">{trainings.reduce((a,b)=>a+(Number(b.hours)||0),0)}</span> ชั่วโมง</span></div>{trainings.map(t => (<div key={t.id} className="p-4 border border-green-100 bg-green-50/30 rounded-xl hover:shadow-sm transition flex justify-between items-start"><div><h4 className="font-bold text-gray-800">{t.topic}</h4><p className="text-sm text-gray-600">{t.org} <span className="mx-2">•</span> <span className="bg-white px-2 py-0.5 rounded border border-green-200 text-xs">{t.type}</span></p><p className="text-xs text-gray-400 mt-1">{formatDateThai(t.startDate)} {t.startDate !== t.endDate && `- ${formatDateThai(t.endDate)}`}</p></div><div className="flex flex-col items-end gap-2"><span className="text-sm font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full">{t.hours} ชม.</span>{t.evidenceImage && <a href={t.evidenceImage} target="_blank" className="text-xs text-blue-600 flex items-center gap-1 hover:underline"><FileText size={12}/> ดูเกียรติบัตร</a>}</div></div>))}{trainings.length === 0 && <p className="text-center text-gray-400 py-10">ยังไม่มีข้อมูลการอบรม</p>}</div>)}<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="เพิ่มประวัติการอบรม"><form onSubmit={addTraining} className="space-y-3"><div><label className="text-xs font-bold text-gray-500">ชื่อหลักสูตร</label><input className="w-full p-2 border rounded" required value={form.topic} onChange={e => setForm({...form, topic: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">หน่วยงานที่จัด</label><input className="w-full p-2 border rounded" required value={form.org} onChange={e => setForm({...form, org: e.target.value})} /></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">เริ่ม</label><input type="date" className="w-full p-2 border rounded" required value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">ถึง</label><input type="date" className="w-full p-2 border rounded" required value={form.endDate} onChange={e => setForm({...form, endDate: e.target.value})} /></div></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">จำนวนชั่วโมง</label><input type="number" className="w-full p-2 border rounded" required value={form.hours} onChange={e => setForm({...form, hours: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">ประเภท</label><select className="w-full p-2 border rounded" value={form.type} onChange={e => setForm({...form, type: e.target.value})}><option>On-site</option><option>Online</option><option>PLC</option></select></div></div><div><label className="text-xs font-bold text-gray-500">แนบเกียรติบัตร (รูปภาพ)</label><div className="p-3 border-2 border-dashed rounded text-center text-xs text-gray-400 relative hover:bg-gray-50"><input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />{form.evidenceImage ? <span className="text-green-600 flex items-center justify-center gap-1"><CheckCircle size={12}/> อัปโหลดแล้ว</span> : <span className="flex items-center justify-center gap-1"><Upload size={12}/> คลิกเลือกไฟล์</span>}</div></div><button className="w-full bg-green-600 text-white py-2 rounded font-bold mt-2">บันทึก</button></form></Modal></div>
-  );
-};
-
-const PortfolioModule = ({ currentUser, authUser, showToast }) => {
-  const [items, setItems] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form, setForm] = useState({ title: '', year: new Date().getFullYear() + 543, type: 'รางวัล', role: 'เจ้าของผลงาน', description: '', link: '', image: null, pdf: null });
-  useEffect(() => { if (!authUser) return; const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')); const unsub = onSnapshot(q, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); setItems(data.filter(i => i.userId === currentUser.id)); }); return () => unsub(); }, [currentUser, authUser]);
-  const handleImageChange = (e) => { const file = e.target.files[0]; if(file) { if (file.size > 1048576) { alert("รูปภาพต้องขนาดไม่เกิน 1MB"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, image: reader.result }); reader.readAsDataURL(file); } };
-  const handlePdfChange = (e) => { const file = e.target.files[0]; if(file) { if (file.size > 2097152) { alert("ไฟล์ PDF ต้องขนาดไม่เกิน 2MB"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, pdf: reader.result }); reader.readAsDataURL(file); } };
-  const addItem = async (e) => { e.preventDefault(); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio'), { ...form, userId: currentUser.id, createdAt: serverTimestamp() }); showToast("บันทึกผลงานเรียบร้อย"); setIsModalOpen(false); setForm({ title: '', year: new Date().getFullYear() + 543, type: 'รางวัล', role: 'เจ้าของผลงาน', description: '', link: '', image: null, pdf: null }); };
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold flex items-center gap-2"><Award className="text-purple-600"/> แฟ้มผลงาน (Portfolio)</h2><button onClick={() => setIsModalOpen(true)} className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">+ เพิ่มผลงาน</button></div><div className="grid grid-cols-1 md:grid-cols-2 gap-4">{items.map(t => (<div key={t.id} className="p-4 border border-purple-100 bg-purple-50/30 rounded-xl hover:shadow-md transition flex flex-col justify-between"><div><div className="flex justify-between items-start mb-2"><div className="flex items-center gap-2"><span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">{t.type}</span><span className="text-xs text-gray-400">ปี {t.year}</span></div></div><h4 className="font-bold text-gray-800 text-lg mb-1">{t.title}</h4><p className="text-xs text-gray-500 mb-2">บทบาท: {t.role}</p><p className="text-sm text-gray-600 line-clamp-2 mb-3">{t.description || '-'}</p>{(t.image || t.pdf || t.link) && (<div className="flex gap-2 mt-2 pt-2 border-t border-purple-100">{t.image && <a href={t.image} target="_blank" className="text-xs flex items-center gap-1 text-blue-600 hover:underline"><Camera size={12}/> ดูรูป</a>}{t.pdf && <a href={t.pdf} target="_blank" className="text-xs flex items-center gap-1 text-red-600 hover:underline"><File size={12}/> ดู PDF</a>}{t.link && <a href={t.link} target="_blank" className="text-xs flex items-center gap-1 text-gray-600 hover:underline"><LinkIcon size={12}/> ลิงก์</a>}</div>)}</div></div>))}</div>{items.length === 0 && <p className="text-center text-gray-400 py-10">ยังไม่มีผลงาน</p>}<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="เพิ่มผลงานดีเด่น"><form onSubmit={addItem} className="space-y-3"><div><label className="text-xs font-bold text-gray-500">ชื่อผลงาน/รางวัล</label><input className="w-full p-2 border rounded" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">ปี พ.ศ.</label><input type="number" className="w-full p-2 border rounded" required value={form.year} onChange={e => setForm({...form, year: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">ประเภท</label><select className="w-full p-2 border rounded" value={form.type} onChange={e => setForm({...form, type: e.target.value})}><option>รางวัล</option><option>นวัตกรรม</option><option>วิจัย</option><option>Best Practice</option></select></div></div><div><label className="text-xs font-bold text-gray-500">บทบาทของตนเอง</label><input className="w-full p-2 border rounded" value={form.role} onChange={e => setForm({...form, role: e.target.value})} placeholder="เช่น เจ้าของผลงาน, ทีมงาน, ที่ปรึกษา" /></div><div><label className="text-xs font-bold text-gray-500">คำอธิบายผลงาน (ย่อหน้า)</label><textarea className="w-full p-2 border rounded" rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})}></textarea></div><div className="grid grid-cols-2 gap-3 pt-2 border-t"><div><label className="text-xs font-bold text-gray-500 block mb-1">รูปภาพผลงาน</label><div className="relative border border-dashed p-2 rounded text-center hover:bg-gray-50 cursor-pointer"><input type="file" accept="image/*" onChange={handleImageChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>{form.image ? <span className="text-green-600 text-xs flex items-center justify-center gap-1"><CheckCircle size={10}/> พร้อมอัปโหลด</span> : <span className="text-xs text-gray-400 flex items-center justify-center gap-1"><Camera size={12}/> เลือกรูป</span>}</div></div><div><label className="text-xs font-bold text-gray-500 block mb-1">รายงาน PDF</label><div className="relative border border-dashed p-2 rounded text-center hover:bg-gray-50 cursor-pointer"><input type="file" accept="application/pdf" onChange={handlePdfChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>{form.pdf ? <span className="text-green-600 text-xs flex items-center justify-center gap-1"><CheckCircle size={10}/> พร้อมอัปโหลด</span> : <span className="text-xs text-gray-400 flex items-center justify-center gap-1"><File size={12}/> เลือก PDF</span>}</div></div></div><div><label className="text-xs font-bold text-gray-500">ลิงก์ YouTube / Google Drive</label><input className="w-full p-2 border rounded" value={form.link} onChange={e => setForm({...form, link: e.target.value})} placeholder="https://..." /></div><button className="w-full bg-purple-600 text-white py-2 rounded font-bold mt-2">บันทึกข้อมูล</button></form></Modal></div>
-  );
-};
-
 const ReportModule = ({ usersData, authUser }) => {
   const [activeReport, setActiveReport] = useState('leave');
   const [leaves, setLeaves] = useState([]);
@@ -546,7 +601,7 @@ const ReportModule = ({ usersData, authUser }) => {
   const trainingReportData = useMemo(() => usersData.map(u => { const userTrainings = trainings.filter(t => t.userId === u.id); const totalHours = userTrainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0); return { ...u, totalHours, count: userTrainings.length }; }).sort((a, b) => b.totalHours - a.totalHours), [trainings, usersData]);
   const portfolioReportData = useMemo(() => portfolios.filter(p => p.userId === selectedPortfolioUser && parseInt(p.year) === parseInt(portfolioYear)), [portfolios, selectedPortfolioUser, portfolioYear]);
   const selectedUser = usersData.find(u => u.id === selectedPortfolioUser) || {};
-  const salaryTotal = usersData.reduce((acc, u) => acc + (Number(u.salary)||0) + (Number(u.academic)||0), 0);
+  const salaryTotal = usersData.reduce((acc, u) => acc + (Number(u.salary)||0) + (Number(u.academic)||0) + (Number(u.backPay)||0), 0);
   
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 print:p-0 print:shadow-none print:border-none">
@@ -560,7 +615,7 @@ const ReportModule = ({ usersData, authUser }) => {
       </div>
       <div className="w-full max-w-[210mm] mx-auto bg-white text-black p-4 min-h-[297mm]">
         {activeReport === 'leave' && (<div><div className="mb-6 relative"><img src={GARUDA_URL} alt="Garuda" className="absolute top-0 left-0" style={{ width: '1.5cm', height: 'auto' }} /><div className="text-center"><h3 className="text-2xl font-bold">บันทึกข้อความ</h3></div><div className="text-left mt-4 leading-relaxed"><p><strong>ส่วนราชการ</strong> โรงเรียนบ้านบากัน อำเภออ่าวลึก จังหวัดกระบี่</p><p><strong>ที่</strong> ................................................. <strong>วันที่</strong> {new Date().getDate()} {THAI_MONTHS_FULL[new Date().getMonth()]} {new Date().getFullYear() + 543}</p><p><strong>เรื่อง</strong> รายงานสรุปการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</p></div><hr className="my-4 border-black"/><p className="text-left mb-4"><strong>เรียน ผู้อำนวยการโรงเรียนบ้านบากัน</strong></p><p className="text-left indent-8 mb-4">ด้วยข้าพเจ้าได้รับมอบหมายให้รวบรวมสถิติการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน <u>{THAI_MONTHS_FULL[reportMonth]} พ.ศ. {parseInt(reportYear) + 543}</u> เพื่อนำเสนอต่อผู้บริหาร ดังรายละเอียดต่อไปนี้</p></div><div className="mb-6"><h4 className="font-bold mb-2">1. รายการลาประจำเดือน</h4><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center w-10">ที่</th><th className="border border-black p-1 text-center w-32">ว/ด/ป ที่ลา</th><th className="border border-black p-1 text-left">ชื่อ-สกุล</th><th className="border border-black p-1 text-center w-24">ประเภท</th><th className="border border-black p-1 text-center w-16">วัน</th><th className="border border-black p-1 text-left">หมายเหตุ</th></tr></thead><tbody>{leaveReportData.length > 0 ? leaveReportData.map((row, index) => (<tr key={row.id}><td className="border border-black p-1 text-center align-top">{index + 1}</td><td className="border border-black p-1 text-center align-top">{formatDateThai(row.startDate)} {row.startDate !== row.endDate && <><br/>-{formatDateThai(row.endDate)}</>}</td><td className="border border-black p-1 align-top">{row.staffName}</td><td className="border border-black p-1 text-center align-top">{LEAVE_TYPES.find(t=>t.id === row.leaveType)?.label}</td><td className="border border-black p-1 text-center align-top">{row.daysCount}</td><td className="border border-black p-1 align-top">{row.reason || "-"}</td></tr>)) : <tr><td colSpan={6} className="border border-black p-4 text-center">-- ไม่มีรายการลาในเดือนนี้ --</td></tr>}</tbody></table></div><div className="mb-8 page-break"><div className="flex justify-between items-end mb-2"><h4 className="font-bold">2. สรุปวันลาสะสม ({leaveSummaryData.cycleLabel})</h4><span className="text-xs">* หน่วยเป็น "วัน" (มาสาย นับเป็น "ครั้ง")</span></div><table className="w-full border-collapse border border-black text-xs"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center">ที่</th><th className="border border-black p-1 text-left w-40">ชื่อ-สกุล</th><th className="border border-black p-1 text-center">ป่วย</th><th className="border border-black p-1 text-center">กิจ</th><th className="border border-black p-1 text-center">ครึ่งวัน</th><th className="border border-black p-1 text-center">คลอด</th><th className="border border-black p-1 text-center">ศาสนา</th><th className="border border-black p-1 text-center bg-gray-100">รวมวัน</th><th className="border border-black p-1 text-center text-red-600">สาย(ครั้ง)</th></tr></thead><tbody>{leaveSummaryData.summary.map((staff, idx) => (<tr key={idx} className={staff.totalDays > 0 ? "" : "text-gray-400"}><td className="border border-black p-1 text-center">{idx + 1}</td><td className="border border-black p-1">{staff.name}</td><td className="border border-black p-1 text-center">{staff.sick || '-'}</td><td className="border border-black p-1 text-center">{staff.personal || '-'}</td><td className="border border-black p-1 text-center">{staff.half_day || '-'}</td><td className="border border-black p-1 text-center">{staff.maternity || '-'}</td><td className="border border-black p-1 text-center">{staff.religious || '-'}</td><td className="border border-black p-1 text-center font-bold bg-gray-50">{staff.totalDays || '-'}</td><td className="border border-black p-1 text-center text-red-600">{staff.late || '-'}</td></tr>))}</tbody></table></div><div className="grid grid-cols-2 gap-4 px-4 page-break"><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสุมาลี บุญชู )</p><p>ฝ่ายบริหารงานบุคคล</p></div><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสาวทิพวรรณ ศรีทองแก้ว )</p><p>รองผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div><div className="mt-8 text-center px-4"><p className="mb-2">ทราบ / อนุญาต</p><p className="mb-6">ลงชื่อ .......................................................</p><p className="font-bold">( นายพลภัทร ธีระกุล )</p><p>ผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div>)}
-        {activeReport === 'salary' && (<div><div className="text-center mb-8"><h3 className="text-xl font-bold">รายงานสรุปบัญชีถือจ่ายเงินเดือนข้าราชการครูและบุคลากร</h3><h4 className="text-lg">โรงเรียนบ้านบากัน ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</h4></div><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-2 text-center w-12">ที่</th><th className="border border-black p-2 text-left">ชื่อ-สกุล</th><th className="border border-black p-2 text-left">ตำแหน่ง</th><th className="border border-black p-2 text-right">เงินเดือน</th><th className="border border-black p-2 text-right">เงินวิทยฐานะ</th><th className="border border-black p-2 text-right font-bold bg-gray-100">รวมรับสุทธิ</th><th className="border border-black p-2 text-center w-24">ลายมือชื่อ</th></tr></thead><tbody>{sortedUsers.map((user, index) => { const total = (Number(user.salary)||0) + (Number(user.academic)||0); return (<tr key={user.id}><td className="border border-black p-2 text-center">{index + 1}</td><td className="border border-black p-2">{user.name}</td><td className="border border-black p-2">{user.position}</td><td className="border border-black p-2 text-right">{user.salary ? formatCurrency(user.salary) : '-'}</td><td className="border border-black p-2 text-right">{user.academic ? formatCurrency(user.academic) : '-'}</td><td className="border border-black p-2 text-right font-bold bg-gray-50">{formatCurrency(total)}</td><td className="border border-black p-2"></td></tr>); })}</tbody><tfoot><tr className="bg-gray-200 font-bold"><td colSpan={3} className="border border-black p-2 text-center">รวมทั้งสิ้น</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.salary)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.academic)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(salaryTotal)}</td><td className="border border-black p-2"></td></tr></tfoot></table>
+        {activeReport === 'salary' && (<div><div className="text-center mb-8"><h3 className="text-xl font-bold">รายงานสรุปบัญชีถือจ่ายเงินเดือนข้าราชการครูและบุคลากร</h3><h4 className="text-lg">โรงเรียนบ้านบากัน ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</h4></div><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-2 text-center w-12">ที่</th><th className="border border-black p-2 text-left">ชื่อ-สกุล</th><th className="border border-black p-2 text-left">ตำแหน่ง</th><th className="border border-black p-2 text-right">เงินเดือน</th><th className="border border-black p-2 text-right">เงินวิทยฐานะ</th><th className="border border-black p-2 text-right">ตกเบิก</th><th className="border border-black p-2 text-right font-bold bg-gray-100">รวมรับสุทธิ</th><th className="border border-black p-2 text-center w-24">ลายมือชื่อ</th></tr></thead><tbody>{sortedUsers.map((user, index) => { const total = (Number(user.salary)||0) + (Number(user.academic)||0) + (Number(user.backPay)||0); return (<tr key={user.id}><td className="border border-black p-2 text-center">{index + 1}</td><td className="border border-black p-2">{user.name}</td><td className="border border-black p-2">{user.position}</td><td className="border border-black p-2 text-right">{user.salary ? formatCurrency(user.salary) : '-'}</td><td className="border border-black p-2 text-right">{user.academic ? formatCurrency(user.academic) : '-'}</td><td className="border border-black p-2 text-right">{user.backPay ? formatCurrency(user.backPay) : '-'}</td><td className="border border-black p-2 text-right font-bold bg-gray-50">{formatCurrency(total)}</td><td className="border border-black p-2"></td></tr>); })}</tbody><tfoot><tr className="bg-gray-200 font-bold"><td colSpan={3} className="border border-black p-2 text-center">รวมทั้งสิ้น</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.salary)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.academic)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.backPay)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(salaryTotal)}</td><td className="border border-black p-2"></td></tr></tfoot></table>
         
         {/* Updated Signature Section with correct name and better spacing */}
         <div className="grid grid-cols-3 gap-4 px-4 mt-12 page-break">
