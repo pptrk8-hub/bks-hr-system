@@ -201,7 +201,6 @@ const Sidebar = ({ user, activeTab, setActiveTab, onLogout, isOpen, toggleSideba
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold shadow-inner">{user.name.charAt(0)}</div>
             <div className="overflow-hidden">
               <p className="text-xs font-bold truncate text-white">{user.name}</p>
-              {/* Added Position Display below Name */}
               <p className="text-[10px] text-slate-300 truncate">{user.position}</p>
               <p className="text-[9px] text-slate-500 truncate">{user.role}</p>
             </div>
@@ -253,15 +252,10 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   const currentMonthLeaves = leaves.filter(l => {
-    if (!l.startDate) return false; // Fix: Check if startDate exists
+    if (!l.startDate) return false;
     const d = new Date(l.startDate);
-    if (isNaN(d.getTime())) return false; // Fix: Check if date is valid
+    if (isNaN(d.getTime())) return false;
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-  });
-
-  const leaveStats = LEAVE_TYPES.map(type => {
-    const count = currentMonthLeaves.filter(l => l.leaveType === type.id).length;
-    return { ...type, count };
   });
 
   return (
@@ -829,5 +823,176 @@ const ReportModule = ({ usersData, authUser }) => {
         {activeReport === 'portfolio' && (<div><div className="text-center mb-8 border-b-2 border-black pb-4"><h3 className="text-2xl font-bold mb-2">รายงานสรุปผลงานดีเด่น (Best Practice)</h3><h4 className="text-lg">ประจำปีการศึกษา {portfolioYear}</h4></div><div className="mb-6"><p className="text-lg"><strong>ชื่อ-สกุล:</strong> {selectedUser.name}</p><p className="text-lg"><strong>ตำแหน่ง:</strong> {selectedUser.position} <strong>สังกัด:</strong> {selectedUser.department || '-'}</p></div>{portfolioReportData.length > 0 ? (<table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-2 text-center w-16">ลำดับ</th><th className="border border-black p-2 text-left">ชื่อผลงาน / รางวัล</th><th className="border border-black p-2 text-center w-32">ประเภท</th><th className="border border-black p-2 text-center w-40">บทบาท</th></tr></thead><tbody>{portfolioReportData.map((row, index) => (<tr key={row.id}><td className="border border-black p-2 text-center align-top">{index + 1}</td><td className="border border-black p-2 align-top"><span className="font-bold block">{row.title}</span><span className="text-xs text-gray-600">{row.description}</span></td><td className="border border-black p-2 text-center align-top">{row.type}</td><td className="border border-black p-2 text-center align-top">{row.role}</td></tr>))}</tbody></table>) : (<div className="p-10 text-center border border-black border-dashed text-gray-500">-- ไม่พบข้อมูลผลงานในปีการศึกษานี้ --</div>)}<div className="mt-12 flex justify-between px-10"><div className="text-center"><p className="mb-8">ลงชื่อ ....................................................... เจ้าของประวัติ</p><p className="font-bold">( {selectedUser.name} )</p></div><div className="text-center"><p className="mb-8">ลงชื่อ ....................................................... ผู้รับรอง</p><p className="font-bold">( นายพลภัทร ธีระกุล )</p><p>ผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div></div>)}
       </div>
     </div>
+  );
+};
+
+// --- MAIN APP LOGIC ---
+export default function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authUser, setAuthUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [usersData, setUsersData] = useState([]);
+  const [loginForm, setLoginForm] = useState({ user: '', pass: '' });
+  const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [customLogo, setCustomLogo] = useState(null);
+  
+  // Forgot Password State
+  const [view, setView] = useState('login'); // 'login' or 'forgot'
+  const [forgotEmail, setForgotEmail] = useState('');
+
+  // Leaves, Trainings, Portfolio data for Dashboard
+  const [leaves, setLeaves] = useState([]);
+  const [trainings, setTrainings] = useState([]);
+  const [portfolio, setPortfolio] = useState([]);
+
+  useEffect(() => { const setupAuth = async () => { try { if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(auth, __initial_auth_token); } else { await signInAnonymously(auth); } } catch(e) { console.error(e) } }; setupAuth(); return onAuthStateChanged(auth, (user) => user && setAuthUser(user)); }, []);
+  
+  useEffect(() => { 
+    if (!authUser) return; 
+    const initData = async () => { 
+      const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'users')); const snapshot = await getDocs(q); 
+      
+      let fetchedUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      if (fetchedUsers.length === 0) { 
+        // Initial Seed
+        for (const user of INITIAL_USERS) { 
+          await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...user, password: DEFAULT_PASSWORD, status: 'active', createdAt: serverTimestamp() }); 
+        } 
+        window.location.reload(); 
+      } else { 
+        // Auto-Sync: Check for missing users in INITIAL_USERS and add them
+        const existingUsernames = fetchedUsers.map(u => u.username);
+        let hasNewUser = false;
+        
+        for (const user of INITIAL_USERS) {
+          if (!existingUsernames.includes(user.username)) {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...user, password: DEFAULT_PASSWORD, status: 'active', createdAt: serverTimestamp() });
+            hasNewUser = true;
+          }
+        }
+
+        if (hasNewUser) {
+           // Re-fetch if new users were added
+           const updatedSnap = await getDocs(q);
+           setUsersData(updatedSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        } else {
+           setUsersData(fetchedUsers); 
+        }
+      } 
+      
+      // Subscribe to other collections for dashboard
+      onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves')), (snap) => setLeaves(snap.docs.map(d => d.data())));
+      onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')), (snap) => setTrainings(snap.docs.map(d => d.data())));
+      onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')), (snap) => setPortfolio(snap.docs.map(d => d.data())));
+      
+      // Check for saved custom logo in localStorage (as a quick fix for current user)
+      const savedLogo = localStorage.getItem(`bks_logo_${appId}`);
+      if(savedLogo) setCustomLogo(savedLogo);
+
+      setLoading(false); 
+    }; 
+    initData(); 
+  }, [authUser]);
+
+  const showToast = (message, type = 'success') => setToast({ message, type });
+  
+  const handleLogin = (e) => { e.preventDefault(); const user = usersData.find(u => (u.username === loginForm.user || u.name === loginForm.user) && u.password === loginForm.pass && u.status !== 'disabled'); if (user) { setCurrentUser(user); setActiveTab('dashboard'); showToast(`ยินดีต้อนรับ ${user.name}`); } else { showToast("รหัสผ่านไม่ถูกต้อง", 'error'); } };
+  
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    const user = usersData.find(u => u.username === forgotEmail || u.email === forgotEmail);
+    if (user && user.email) {
+      showToast(`ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ ${user.email} เรียบร้อยแล้ว (จำลอง)`, 'success');
+      setTimeout(() => setView('login'), 2000);
+    } else if (user) {
+      showToast(`ผู้ใช้ ${user.name} ยังไม่ได้ลงทะเบียนอีเมลในระบบ กรุณาติดต่อ Admin`, 'error');
+    } else {
+      showToast('ไม่พบข้อมูลผู้ใช้ในระบบ', 'error');
+    }
+  };
+
+  const handleUpdateUser = async (uid, data) => { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), data); showToast("บันทึกสำเร็จ"); const updatedUser = { ...currentUser, ...data }; if (currentUser.id === uid) setCurrentUser(updatedUser); setUsersData(prev => prev.map(u => u.id === uid ? { ...u, ...data } : u)); };
+  const handleResetPassword = async (user) => { if(!confirm(`รีเซ็ตรหัสผ่าน ${user.name} เป็น ${DEFAULT_PASSWORD}?`)) return; await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', user.id), { password: DEFAULT_PASSWORD }); showToast("รีเซ็ตรหัสเรียบร้อย"); };
+  const handleAddUser = async (newUser) => { if(usersData.some(u => u.username === newUser.username)) return showToast("Username ซ้ำ", 'error'); const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...newUser, createdAt: serverTimestamp() }); setUsersData([...usersData, { id: docRef.id, ...newUser }]); showToast("เพิ่มผู้ใช้สำเร็จ"); };
+
+  // Function to handle logo upload manually
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomLogo(reader.result);
+        localStorage.setItem(`bks_logo_${appId}`, reader.result); // Save to local storage for persistence on this device
+        showToast("อัปเดตโลโก้เรียบร้อย (เฉพาะเครื่องนี้)");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading BKS-HR...</div>;
+  if (!currentUser) return (
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4"> 
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />} 
+      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm animate-fade-in-up relative group"> 
+        <div className="text-center mb-8"> 
+          <div className="relative inline-block">
+            <img 
+              src={customLogo || DRIVE_THUMBNAIL_URL} 
+              onError={(e) => { e.target.onerror = null; e.target.src = LOGO_FALLBACK; }}
+              alt="BKS Logo" 
+              className="w-24 h-24 object-contain mx-auto mb-4 drop-shadow-xl" 
+            />
+            <label className="absolute bottom-0 right-0 bg-white shadow-md p-1 rounded-full cursor-pointer hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity" title="เปลี่ยนโลโก้ (เฉพาะเครื่องนี้)">
+              <Camera size={14} className="text-gray-600"/>
+              <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+            </label>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800">ระบบ BKS-HR</h1> 
+          <p className="text-gray-500 text-sm">โรงเรียนบ้านบากัน</p> 
+        </div> 
+        
+        {view === 'login' ? (
+          <form onSubmit={handleLogin} className="space-y-4"> 
+            <input className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username" value={loginForm.user} onChange={e => setLoginForm({...loginForm, user: e.target.value})} /> 
+            <input type="password" className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Password" value={loginForm.pass} onChange={e => setLoginForm({...loginForm, pass: e.target.value})} /> 
+            <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">เข้าสู่ระบบ</button> 
+            <div className="text-center">
+              <button type="button" onClick={() => setView('forgot')} className="text-sm text-blue-500 hover:underline">ลืมรหัสผ่าน?</button>
+            </div>
+          </form> 
+        ) : (
+          <form onSubmit={handleForgotPassword} className="space-y-4 animate-fade-in">
+            <div className="text-center mb-4">
+              <h3 className="font-bold text-gray-700">รีเซ็ตรหัสผ่าน</h3>
+              <p className="text-xs text-gray-500">กรอก Username หรือ Email เพื่อรับลิงก์</p>
+            </div>
+            <input className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username หรือ Email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} required /> 
+            <button className="w-full bg-orange-500 text-white py-3 rounded-xl font-bold hover:bg-orange-600 transition shadow-lg">ส่งลิงก์รีเซ็ต</button> 
+            <div className="text-center">
+              <button type="button" onClick={() => setView('login')} className="text-sm text-gray-500 hover:text-gray-700">กลับไปหน้าเข้าสู่ระบบ</button>
+            </div>
+          </form>
+        )}
+      </div> 
+    </div>
+  );
+
+  return (
+    <div className="flex min-h-screen bg-slate-50 font-sans text-slate-800"> {toast && <Toast {...toast} onClose={() => setToast(null)} />} <Sidebar user={currentUser} activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setCurrentUser(null)} isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} customLogo={customLogo} /> <main className="flex-1 flex flex-col h-screen overflow-hidden"> <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between shrink-0"> <div className="flex items-center gap-3"> <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"><Menu size={24}/></button> <h1 className="font-bold text-lg hidden sm:block">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h1> </div> <div className="flex items-center gap-3"> <span className="text-sm font-medium text-gray-600 hidden sm:block">{currentUser.name}</span> {currentUser.photoURL ? (<img src={currentUser.photoURL} alt="Profile" className="w-8 h-8 rounded-full object-cover" />) : (<div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs">{currentUser.name.charAt(0)}</div>)} </div> </header> <div className="flex-1 overflow-y-auto p-4 lg:p-8"> <div className="max-w-7xl mx-auto min-h-[calc(100vh-120px)] flex flex-col"> 
+      <div className="flex-1">
+        {activeTab === 'dashboard' && <DashboardModule user={currentUser} leaves={leaves} trainings={trainings} portfolio={portfolio} setActiveTab={setActiveTab} usersData={usersData} />} 
+        {activeTab === 'users' && currentUser.role === 'Super Admin' && <UserManagement usersData={usersData} onAddUser={handleAddUser} onUpdateUser={handleUpdateUser} onResetPassword={handleResetPassword} />} 
+        {activeTab === 'leaves' && (currentUser.role === 'Super Admin' || currentUser.role === 'Admin HR') && <LeaveModule currentUser={currentUser} usersData={usersData} authUser={authUser} showToast={showToast} />} 
+        {activeTab === 'salary' && (currentUser.role === 'Super Admin' || currentUser.role === 'Admin HR') && <SalaryModule usersData={usersData} onUpdateUser={handleUpdateUser} showToast={showToast} />}
+        {activeTab === 'report' && (currentUser.role === 'Super Admin' || currentUser.role === 'Admin HR') && <ReportModule usersData={usersData} authUser={authUser} />}
+        {activeTab === 'profile' && <ProfileModule currentUser={currentUser} onUpdateProfile={handleUpdateUser} showToast={showToast} />} 
+        {activeTab === 'training' && <TrainingModule currentUser={currentUser} authUser={authUser} showToast={showToast} usersData={usersData} />} 
+        {activeTab === 'portfolio' && <PortfolioModule currentUser={currentUser} authUser={authUser} showToast={showToast} />} 
+      </div>
+      <div className="mt-8 text-center text-xs text-gray-400 border-t pt-4">เว็บแอพ BKS-HR พัฒนาโดย นายพลภัทร ธีระกุล ผู้อำนวยการโรงเรียนบ้านบากัน</div>
+    </div> </div> </main> </div>
   );
 }
