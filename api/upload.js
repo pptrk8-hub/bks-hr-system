@@ -1,7 +1,16 @@
 // api/upload.js
 // โค้ดนี้จะทำงานบน Server ของ Vercel เท่านั้น ปลอดภัยแน่นอน
 import { v2 as cloudinary } from 'cloudinary';
+// --- เพิ่มบรรทัดนี้เพื่อแอบดูว่ากุญแจมาไหม (ดูใน Logs) ---
+console.log("DEBUG KEYS:", {
+   cloud: process.env.VITE_CLOUDINARY_CLOUD_NAME ? "Yes" : "No",
+   key: process.env.CLOUDINARY_API_KEY ? "Yes" : "No",
+   secret: process.env.CLOUDINARY_API_SECRET ? "Yes" : "No"
+});
+// -----------------------------------------------------
 
+cloudinary.config({
+   // ... (โค้ดเดิม)
 cloudinary.config({
   cloud_name: process.env.VITE_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
