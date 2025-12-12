@@ -1,16 +1,6 @@
-// api/upload.js
-// โค้ดนี้จะทำงานบน Server ของ Vercel เท่านั้น ปลอดภัยแน่นอน
 import { v2 as cloudinary } from 'cloudinary';
-// --- เพิ่มบรรทัดนี้เพื่อแอบดูว่ากุญแจมาไหม (ดูใน Logs) ---
-console.log("DEBUG KEYS:", {
-   cloud: process.env.VITE_CLOUDINARY_CLOUD_NAME ? "Yes" : "No",
-   key: process.env.CLOUDINARY_API_KEY ? "Yes" : "No",
-   secret: process.env.CLOUDINARY_API_SECRET ? "Yes" : "No"
-});
-// -----------------------------------------------------
 
-cloudinary.config({
-   // ... (โค้ดเดิม)
+// ตั้งค่า Cloudinary
 cloudinary.config({
   cloud_name: process.env.VITE_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -18,7 +8,7 @@ cloudinary.config({
 });
 
 export default async function handler(request, response) {
-  // แก้ปัญหา CORS (อนุญาตให้หน้าเว็บเราคุยกับหลังบ้านได้)
+  // 1. แก้ปัญหา CORS (ให้หน้าเว็บคุยกับหลังบ้านได้)
   response.setHeader('Access-Control-Allow-Origin', '*');
   response.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -27,22 +17,37 @@ export default async function handler(request, response) {
     return response.status(200).end();
   }
 
-  if (request.method !== 'POST') {
-    return response.status(405).json({ error: 'Method Not Allowed' });
+  // 2. เช็กว่ากุญแจมาครบไหม? (ถ้าไม่ครบ จะแจ้ง Error ชัดๆ)
+  if (!process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.error("❌ ERROR: Missing Cloudinary Keys in Vercel Environment Variables");
+      return response.status(500).json({ 
+          error: 'Server Configuration Error: Missing API Keys',
+          debug: {
+              hasCloudName: !!process.env.VITE_CLOUDINARY_CLOUD_NAME,
+              hasApiKey: !!process.env.CLOUDINARY_API_KEY,
+              hasApiSecret: !!process.env.CLOUDINARY_API_SECRET
+          }
+      });
   }
 
+  // 3. เริ่มอัปโหลด
   try {
     const { data } = request.body;
     
+    if (!data) {
+        return response.status(400).json({ error: 'No file data provided' });
+    }
+
     // อัปโหลดขึ้น Cloudinary
     const uploadResponse = await cloudinary.uploader.upload(data, {
-      folder: 'bks_hr_teachers',
+      folder: 'bks_hr_certificates', // ตั้งชื่อโฟลเดอร์เก็บเกียรติบัตร
+      resource_type: "auto" // รับได้ทั้งรูปและ PDF
     });
 
-    // ส่ง Link กลับไปให้หน้าเว็บ
     return response.status(200).json({ url: uploadResponse.secure_url });
+    
   } catch (error) {
-    console.error('Upload Error:', error);
-    return response.status(500).json({ error: 'Upload failed' });
+    console.error('❌ Upload Failed:', error);
+    return response.status(500).json({ error: error.message || 'Something went wrong during upload' });
   }
-} 
+}
