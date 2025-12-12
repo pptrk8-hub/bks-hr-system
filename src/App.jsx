@@ -75,6 +75,30 @@ const LEAVE_TYPES = [
 ];
 
 // --- 3. HELPER FUNCTIONS ---
+// [NEW] ฟังก์ชันสำหรับอัปโหลดไป Cloudinary
+const uploadToCloudinary = async (base64Data) => {
+  // ถ้าไม่มีข้อมูล หรือไม่ใช่ Base64 (เช่น เป็น Link อยู่แล้ว) ให้คืนค่าเดิมกลับไป
+  if (!base64Data || typeof base64Data !== 'string' || !base64Data.startsWith("data:")) {
+    return base64Data;
+  }
+
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: base64Data }),
+    });
+    
+    if (!res.ok) throw new Error('Upload response was not ok');
+    
+    const data = await res.json();
+    return data.url; // ส่งคืน Link ที่ได้จาก Cloud
+  } catch (error) {
+    console.error("Cloudinary Upload Error:", error);
+    return null;
+  }
+};
+
 const getCycleInfo = (dateObj) => {
   if (!(dateObj instanceof Date) || isNaN(dateObj)) return { cycle: 1, year: new Date().getFullYear(), label: '-' };
   const month = dateObj.getMonth();
@@ -385,11 +409,11 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
           <div className="space-y-3">
             {leaveStats.map(type => (
               <div key={type.id} className="flex items-center gap-3">
-                 <div className="w-24 text-xs text-gray-500 text-right truncate">{type.label}</div>
-                 <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-24 text-xs text-gray-500 text-right truncate">{type.label}</div>
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div className={`h-full ${type.barColor}`} style={{ width: `${Math.min(type.count * 10, 100)}%` }}></div>
-                 </div>
-                 <div className="w-8 text-xs text-gray-700 font-bold text-right">{type.count}</div>
+                  </div>
+                  <div className="w-8 text-xs text-gray-700 font-bold text-right">{type.count}</div>
               </div>
             ))}
             {currentMonthLeaves.length === 0 && <p className="text-xs text-center text-gray-400 py-2">ไม่มีการลาในเดือนนี้</p>}
@@ -467,8 +491,8 @@ const SalaryModule = ({ usersData, onUpdateUser, showToast }) => {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filteredUsers.map(u => {
-                 const total = (Number(u.salary)||0) + (Number(u.academic)||0) + (Number(u.backPay)||0);
-                 return (
+                  const total = (Number(u.salary)||0) + (Number(u.academic)||0) + (Number(u.backPay)||0);
+                  return (
                   <tr key={u.id} className="hover:bg-green-50/30">
                     <td className="p-3 font-medium">{u.name}</td>
                     <td className="p-3 text-gray-500">{u.position}</td>
@@ -480,7 +504,7 @@ const SalaryModule = ({ usersData, onUpdateUser, showToast }) => {
                       <button onClick={() => handleEdit(u)} className="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-blue-50 hover:text-blue-600"><Edit size={16}/></button>
                     </td>
                   </tr>
-                 );
+                  );
               })}
             </tbody>
           </table>
@@ -561,7 +585,27 @@ const ProfileModule = ({ currentUser, onUpdateProfile, showToast }) => {
   const [formData, setFormData] = useState(currentUser);
   const [preview, setPreview] = useState(currentUser.photoURL || null);
   const handleFileChange = (e) => { const file = e.target.files[0]; if (file) { if (file.size > 500000) { alert("ขนาดไฟล์ภาพต้องไม่เกิน 500KB"); return; } const reader = new FileReader(); reader.onloadend = () => { setPreview(reader.result); setFormData({ ...formData, photoURL: reader.result }); }; reader.readAsDataURL(file); } };
-  const handleSave = () => { onUpdateProfile(currentUser.id, formData); setIsEditing(false); showToast("บันทึกโปรไฟล์เรียบร้อย", "success"); };
+  
+  // [MODIFIED] Save Profile with Upload
+  const handleSave = async () => { 
+      let finalPhotoUrl = formData.photoURL;
+      
+      // Upload if it's base64
+      if (finalPhotoUrl && finalPhotoUrl.startsWith("data:")) {
+          showToast("กำลังอัปโหลดรูปโปรไฟล์...", "success");
+          const uploaded = await uploadToCloudinary(finalPhotoUrl);
+          if (uploaded) {
+              finalPhotoUrl = uploaded;
+          } else {
+              return showToast("อัปโหลดรูปไม่สำเร็จ", "error");
+          }
+      }
+
+      onUpdateProfile(currentUser.id, { ...formData, photoURL: finalPhotoUrl }); 
+      setIsEditing(false); 
+      showToast("บันทึกโปรไฟล์เรียบร้อย", "success"); 
+  };
+
   return (
     <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-600"></div><div className="px-8 pb-8"><div className="relative -mt-12 mb-6 flex justify-between items-end"><div className="relative group"><div className="w-24 h-24 bg-white rounded-full p-1 shadow-lg overflow-hidden">{preview ? (<img src={preview} alt="Profile" className="w-full h-full rounded-full object-cover" />) : (<div className="w-full h-full bg-slate-100 rounded-full flex items-center justify-center text-slate-400"><User size={48} /></div>)}</div>{isEditing && (<label className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full cursor-pointer hover:bg-blue-700 shadow-md"><Camera size={16} /><input type="file" className="hidden" accept="image/*" onChange={handleFileChange} /></label>)}</div>{!isEditing ? (<button onClick={() => setIsEditing(true)} className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 flex items-center gap-2"><Edit size={16} /> แก้ไขโปรไฟล์</button>) : (<div className="flex gap-2"><button onClick={() => { setIsEditing(false); setFormData(currentUser); setPreview(currentUser.photoURL); }} className="px-4 py-2 text-sm text-gray-600">ยกเลิก</button><button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 shadow-sm">บันทึก</button></div>)}</div><div className="space-y-6"><div><h2 className="text-2xl font-bold text-gray-900">{formData.name}</h2><p className="text-gray-500">{formData.position} • {formData.department || 'ไม่ระบุสังกัด'}</p></div><div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t"><div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">เบอร์โทรศัพท์</label>{isEditing ? (<input className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" value={formData.tel} onChange={e => setFormData({...formData, tel: e.target.value})} placeholder="เช่น 08x-xxx-xxxx" />) : <p className="text-gray-900 font-medium">{currentUser.tel || '-'}</p>}</div><div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">อีเมล</label>{isEditing ? (<input className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="example@email.com" />) : <p className="text-gray-900 font-medium">{currentUser.email || '-'}</p>}</div><div className="md:col-span-2"><label className="block text-xs font-bold text-gray-500 uppercase mb-1">ที่อยู่</label>{isEditing ? (<textarea className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" rows={2} value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="ที่อยู่ปัจจุบัน..." />) : <p className="text-gray-900">{currentUser.address || '-'}</p>}</div><div className="md:col-span-2"><label className="block text-xs font-bold text-gray-500 uppercase mb-1">ความเชี่ยวชาญ / Bio</label>{isEditing ? (<textarea className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" rows={3} value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} placeholder="แนะนำตัวสั้นๆ หรือระบุความเชี่ยวชาญ..." />) : <p className="text-gray-900">{currentUser.bio || '-'}</p>}</div></div></div></div></div>
   );
@@ -621,6 +665,14 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
     const staff = usersData.find(u => u.id === form.staffId); 
     if (!staff) return showToast("ไม่พบข้อมูลพนักงาน", 'error'); 
 
+    // [MODIFIED] Upload Logic
+    let evidenceUrl = form.evidenceImage;
+    if (form.evidenceImage && form.evidenceImage.startsWith("data:")) {
+         showToast("กำลังอัปโหลดรูปภาพ...", "success");
+         evidenceUrl = await uploadToCloudinary(form.evidenceImage);
+         if(!evidenceUrl && form.evidenceImage) return showToast("อัปโหลดไม่สำเร็จ", "error");
+    }
+
     const cycle = getCycleInfo(new Date(form.start)); 
     // Use the daysCount from form (which might be edited by Super Admin)
     const days = Number(form.daysCount); 
@@ -637,7 +689,7 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
       fiscalYear: cycle.year, 
       cycleLabel: cycle.label, 
       recordedBy: currentUser.name, 
-      evidenceImage: form.evidenceImage 
+      evidenceImage: evidenceUrl // Use Link
     };
 
     if (isEditMode && editingId) {
@@ -721,7 +773,23 @@ const TrainingModule = ({ currentUser, authUser, showToast, usersData }) => {
   const [form, setForm] = useState({ topic: '', org: '', startDate: '', endDate: '', hours: 0, type: 'On-site', evidenceImage: null });
   useEffect(() => { if (!authUser) return; const qMy = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')); const unsubMy = onSnapshot(qMy, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); setTrainings(data.filter(t => t.userId === currentUser.id)); }); if (currentUser.role !== 'User') { const qAll = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')); const unsubAll = onSnapshot(qAll, (snap) => setAllTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => { unsubMy(); unsubAll(); }; } return () => unsubMy(); }, [currentUser, authUser]);
   const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { if (file.size > 1048576) { alert("ไฟล์ภาพใหญ่เกินไป"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, evidenceImage: reader.result }); reader.readAsDataURL(file); } };
-  const addTraining = async (e) => { e.preventDefault(); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'trainings'), { ...form, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); showToast("บันทึกการอบรมเรียบร้อย"); setIsModalOpen(false); setForm({ topic: '', org: '', startDate: '', endDate: '', hours: 0, type: 'On-site', evidenceImage: null }); };
+  
+  // [MODIFIED] Add Training with Upload
+  const addTraining = async (e) => { 
+      e.preventDefault(); 
+      let evidenceUrl = form.evidenceImage;
+      if (form.evidenceImage && form.evidenceImage.startsWith("data:")) {
+          showToast("กำลังอัปโหลดรูป...", "success");
+          evidenceUrl = await uploadToCloudinary(form.evidenceImage);
+          if(!evidenceUrl && form.evidenceImage) return showToast("อัปโหลดไม่สำเร็จ", "error");
+      }
+
+      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'trainings'), { ...form, evidenceImage: evidenceUrl, userId: currentUser.id, userName: currentUser.name, createdAt: serverTimestamp() }); 
+      showToast("บันทึกการอบรมเรียบร้อย"); 
+      setIsModalOpen(false); 
+      setForm({ topic: '', org: '', startDate: '', endDate: '', hours: 0, type: 'On-site', evidenceImage: null }); 
+  };
+
   const trainingSummary = useMemo(() => { if (currentUser.role === 'User') return []; const summary = usersData.map(user => { const userTrainings = allTrainings.filter(t => t.userId === user.id); const totalHours = userTrainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0); const count = userTrainings.length; return { ...user, totalHours, count }; }).sort((a, b) => b.totalHours - a.totalHours); return summary; }, [allTrainings, usersData]);
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold flex items-center gap-2"><BookOpen className="text-green-600"/> ระบบประวัติการอบรม</h2><div className="flex gap-2">{currentUser.role !== 'User' && (<button onClick={() => setViewMode(viewMode === 'my_trainings' ? 'all_summary' : 'my_trainings')} className="bg-orange-100 text-orange-700 px-3 py-2 rounded-lg text-sm hover:bg-orange-200 flex items-center gap-1">{viewMode === 'my_trainings' ? <><BarChart2 size={16}/> ดูภาพรวมทั้งโรงเรียน</> : <><User size={16}/> ดูของฉัน</>}</button>)}<button onClick={() => setIsModalOpen(true)} className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700">+ เพิ่มรายการ</button></div></div>{viewMode === 'all_summary' && currentUser.role !== 'User' ? (<div className="animate-fade-in"><h3 className="font-bold text-lg mb-4 text-gray-700 border-b pb-2">📊 สรุปการพัฒนาบุคลากร (เรียงตามชั่วโมง)</h3><div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700"><tr><th className="p-3 text-center">อันดับ</th><th className="p-3">ชื่อ-สกุล</th><th className="p-3">ตำแหน่ง</th><th className="p-3 text-center">จำนวนครั้ง</th><th className="p-3 text-center">ชั่วโมงสะสม</th></tr></thead><tbody>{trainingSummary.map((s, idx) => (<tr key={s.id} className="border-b hover:bg-gray-50"><td className="p-3 text-center font-bold text-gray-500">{idx + 1}</td><td className="p-3 font-medium">{s.name}</td><td className="p-3 text-gray-500">{s.position}</td><td className="p-3 text-center">{s.count}</td><td className="p-3 text-center"><span className="bg-green-100 text-green-800 px-2 py-1 rounded-full font-bold">{s.totalHours} ชม.</span></td></tr>))}</tbody></table></div></div>) : (<div className="space-y-3 animate-fade-in"><div className="flex justify-between items-end mb-2 border-b pb-2"><h3 className="font-bold text-gray-700">รายการอบรมของฉัน</h3><span className="text-sm text-gray-500">รวมทั้งหมด: <span className="font-bold text-green-600">{trainings.reduce((a,b)=>a+(Number(b.hours)||0),0)}</span> ชั่วโมง</span></div>{trainings.map(t => (<div key={t.id} className="p-4 border border-green-100 bg-green-50/30 rounded-xl hover:shadow-sm transition flex justify-between items-start"><div><h4 className="font-bold text-gray-800">{t.topic}</h4><p className="text-sm text-gray-600">{t.org} <span className="mx-2">•</span> <span className="bg-white px-2 py-0.5 rounded border border-green-200 text-xs">{t.type}</span></p><p className="text-xs text-gray-400 mt-1">{formatDateThai(t.startDate)} {t.startDate !== t.endDate && `- ${formatDateThai(t.endDate)}`}</p></div><div className="flex flex-col items-end gap-2"><span className="text-sm font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full">{t.hours} ชม.</span>{t.evidenceImage && <a href={t.evidenceImage} target="_blank" className="text-xs text-blue-600 flex items-center gap-1 hover:underline"><FileText size={12}/> ดูเกียรติบัตร</a>}</div></div>))}{trainings.length === 0 && <p className="text-center text-gray-400 py-10">ยังไม่มีข้อมูลการอบรม</p>}</div>)}<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="เพิ่มประวัติการอบรม"><form onSubmit={addTraining} className="space-y-3"><div><label className="text-xs font-bold text-gray-500">ชื่อหลักสูตร</label><input className="w-full p-2 border rounded" required value={form.topic} onChange={e => setForm({...form, topic: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">หน่วยงานที่จัด</label><input className="w-full p-2 border rounded" required value={form.org} onChange={e => setForm({...form, org: e.target.value})} /></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">เริ่ม</label><input type="date" className="w-full p-2 border rounded" required value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">ถึง</label><input type="date" className="w-full p-2 border rounded" required value={form.endDate} onChange={e => setForm({...form, endDate: e.target.value})} /></div></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">จำนวนชั่วโมง</label><input type="number" className="w-full p-2 border rounded" required value={form.hours} onChange={e => setForm({...form, hours: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">ประเภท</label><select className="w-full p-2 border rounded" value={form.type} onChange={e => setForm({...form, type: e.target.value})}><option>On-site</option><option>Online</option><option>PLC</option></select></div></div><div><label className="text-xs font-bold text-gray-500">แนบเกียรติบัตร (รูปภาพ)</label><div className="p-3 border-2 border-dashed rounded text-center text-xs text-gray-400 relative hover:bg-gray-50"><input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />{form.evidenceImage ? <span className="text-green-600 flex items-center justify-center gap-1"><CheckCircle size={12}/> อัปโหลดแล้ว</span> : <span className="flex items-center justify-center gap-1"><Upload size={12}/> คลิกเลือกไฟล์</span>}</div></div><button className="w-full bg-green-600 text-white py-2 rounded font-bold mt-2">บันทึก</button></form></Modal></div>
@@ -735,7 +803,28 @@ const PortfolioModule = ({ currentUser, authUser, showToast }) => {
   useEffect(() => { if (!authUser) return; const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')); const unsub = onSnapshot(q, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); setItems(data.filter(i => i.userId === currentUser.id)); }); return () => unsub(); }, [currentUser, authUser]);
   const handleImageChange = (e) => { const file = e.target.files[0]; if(file) { if (file.size > 1048576) { alert("รูปภาพต้องขนาดไม่เกิน 1MB"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, image: reader.result }); reader.readAsDataURL(file); } };
   const handlePdfChange = (e) => { const file = e.target.files[0]; if(file) { if (file.size > 2097152) { alert("ไฟล์ PDF ต้องขนาดไม่เกิน 2MB"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, pdf: reader.result }); reader.readAsDataURL(file); } };
-  const addItem = async (e) => { e.preventDefault(); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio'), { ...form, userId: currentUser.id, createdAt: serverTimestamp() }); showToast("บันทึกผลงานเรียบร้อย"); setIsModalOpen(false); setForm({ title: '', year: new Date().getFullYear() + 543, type: 'รางวัล', role: 'เจ้าของผลงาน', description: '', link: '', image: null, pdf: null }); };
+  
+  // [MODIFIED] Add Item with Uploads (Image + PDF)
+  const addItem = async (e) => { 
+      e.preventDefault(); 
+      let imageUrl = form.image;
+      let pdfUrl = form.pdf;
+
+      if (imageUrl && imageUrl.startsWith("data:")) {
+         showToast("กำลังอัปโหลดรูปภาพ...", "success");
+         imageUrl = await uploadToCloudinary(imageUrl);
+      }
+      if (pdfUrl && pdfUrl.startsWith("data:")) {
+         showToast("กำลังอัปโหลด PDF...", "success");
+         pdfUrl = await uploadToCloudinary(pdfUrl);
+      }
+
+      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio'), { ...form, image: imageUrl, pdf: pdfUrl, userId: currentUser.id, createdAt: serverTimestamp() }); 
+      showToast("บันทึกผลงานเรียบร้อย"); 
+      setIsModalOpen(false); 
+      setForm({ title: '', year: new Date().getFullYear() + 543, type: 'รางวัล', role: 'เจ้าของผลงาน', description: '', link: '', image: null, pdf: null }); 
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold flex items-center gap-2"><Award className="text-purple-600"/> แฟ้มผลงาน (Portfolio)</h2><button onClick={() => setIsModalOpen(true)} className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">+ เพิ่มผลงาน</button></div><div className="grid grid-cols-1 md:grid-cols-2 gap-4">{items.map(t => (<div key={t.id} className="p-4 border border-purple-100 bg-purple-50/30 rounded-xl hover:shadow-md transition flex flex-col justify-between"><div><div className="flex justify-between items-start mb-2"><div className="flex items-center gap-2"><span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">{t.type}</span><span className="text-xs text-gray-400">ปี {t.year}</span></div></div><h4 className="font-bold text-gray-800 text-lg mb-1">{t.title}</h4><p className="text-xs text-gray-500 mb-2">บทบาท: {t.role}</p><p className="text-sm text-gray-600 line-clamp-2 mb-3">{t.description || '-'}</p>{(t.image || t.pdf || t.link) && (<div className="flex gap-2 mt-2 pt-2 border-t border-purple-100">{t.image && <a href={t.image} target="_blank" className="text-xs flex items-center gap-1 text-blue-600 hover:underline"><Camera size={12}/> ดูรูป</a>}{t.pdf && <a href={t.pdf} target="_blank" className="text-xs flex items-center gap-1 text-red-600 hover:underline"><File size={12}/> ดู PDF</a>}{t.link && <a href={t.link} target="_blank" className="text-xs flex items-center gap-1 text-gray-600 hover:underline"><LinkIcon size={12}/> ลิงก์</a>}</div>)}</div></div>))}</div>{items.length === 0 && <p className="text-center text-gray-400 py-10">ยังไม่มีผลงาน</p>}<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="เพิ่มผลงานดีเด่น"><form onSubmit={addItem} className="space-y-3"><div><label className="text-xs font-bold text-gray-500">ชื่อผลงาน/รางวัล</label><input className="w-full p-2 border rounded" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">ปี พ.ศ.</label><input type="number" className="w-full p-2 border rounded" required value={form.year} onChange={e => setForm({...form, year: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">ประเภท</label><select className="w-full p-2 border rounded" value={form.type} onChange={e => setForm({...form, type: e.target.value})}><option>รางวัล</option><option>นวัตกรรม</option><option>วิจัย</option><option>Best Practice</option></select></div></div><div><label className="text-xs font-bold text-gray-500">บทบาทของตนเอง</label><input className="w-full p-2 border rounded" value={form.role} onChange={e => setForm({...form, role: e.target.value})} placeholder="เช่น เจ้าของผลงาน, ทีมงาน, ที่ปรึกษา" /></div><div><label className="text-xs font-bold text-gray-500">คำอธิบายผลงาน (ย่อหน้า)</label><textarea className="w-full p-2 border rounded" rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})}></textarea></div><div className="grid grid-cols-2 gap-3 pt-2 border-t"><div><label className="text-xs font-bold text-gray-500 block mb-1">รูปภาพผลงาน</label><div className="relative border border-dashed p-2 rounded text-center hover:bg-gray-50 cursor-pointer"><input type="file" accept="image/*" onChange={handleImageChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>{form.image ? <span className="text-green-600 text-xs flex items-center justify-center gap-1"><CheckCircle size={10}/> พร้อมอัปโหลด</span> : <span className="text-xs text-gray-400 flex items-center justify-center gap-1"><Camera size={12}/> เลือกรูป</span>}</div></div><div><label className="text-xs font-bold text-gray-500 block mb-1">รายงาน PDF</label><div className="relative border border-dashed p-2 rounded text-center hover:bg-gray-50 cursor-pointer"><input type="file" accept="application/pdf" onChange={handlePdfChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>{form.pdf ? <span className="text-green-600 text-xs flex items-center justify-center gap-1"><CheckCircle size={10}/> พร้อมอัปโหลด</span> : <span className="text-xs text-gray-400 flex items-center justify-center gap-1"><File size={12}/> เลือก PDF</span>}</div></div></div><div><label className="text-xs font-bold text-gray-500">ลิงก์ YouTube / Google Drive</label><input className="w-full p-2 border rounded" value={form.link} onChange={e => setForm({...form, link: e.target.value})} placeholder="https://..." /></div><button className="w-full bg-purple-600 text-white py-2 rounded font-bold mt-2">บันทึกข้อมูล</button></form></Modal></div>
   );
