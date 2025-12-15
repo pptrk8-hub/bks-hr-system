@@ -8,21 +8,21 @@ cloudinary.config({
 });
 
 export default async function handler(request, response) {
-  // แก้ปัญหา CORS
+  // แก้ปัญหา CORS (อนุญาตให้หน้าเว็บคุยกับหลังบ้านได้)
   response.setHeader('Access-Control-Allow-Origin', '*');
   response.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (request.method === 'OPTIONS') return response.status(200).end();
 
-  // เช็กกุญแจ (Debugging)
+  // เช็กกุญแจ (Debugging) - ถ้าตัวไหนหาย มันจะฟ้องชื่อออกมาเลย
   const missingKeys = [];
   if (!process.env.BKS_CLOUD_NAME) missingKeys.push('BKS_CLOUD_NAME');
   if (!process.env.BKS_API_KEY) missingKeys.push('BKS_API_KEY');
   if (!process.env.BKS_API_SECRET) missingKeys.push('BKS_API_SECRET');
 
   if (missingKeys.length > 0) {
-      console.error("❌ MISSING KEYS:", missingKeys.join(", "));
+      console.error("❌ CRITICAL ERROR: MISSING KEYS ->", missingKeys.join(", "));
       return response.status(500).json({ 
           error: 'Configuration Error', 
           details: `ระบบหากุญแจไม่เจอ: ${missingKeys.join(", ")}`
@@ -31,7 +31,7 @@ export default async function handler(request, response) {
 
   try {
     const { data } = request.body;
-    if (!data) return response.status(400).json({ error: 'No file data' });
+    if (!data) return response.status(400).json({ error: 'No file data provided' });
 
     const uploadResponse = await cloudinary.uploader.upload(data, {
       folder: 'bks_hr_certificates',
@@ -40,7 +40,7 @@ export default async function handler(request, response) {
 
     return response.status(200).json({ url: uploadResponse.secure_url });
   } catch (error) {
-    console.error('Upload Failed:', error);
-    return response.status(500).json({ error: error.message });
+    console.error('❌ Upload Failed:', error);
+    return response.status(500).json({ error: error.message || 'Unknown Upload Error' });
   }
 }
