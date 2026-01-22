@@ -6,7 +6,15 @@ cloudinary.config({
   api_key: '164256515377321',
   api_secret: 'v0DN2fdL46F4nZHvMw7R2fJ1obg'
 });
+// ต้องมีบรรทัดเรียกใช้ Cloudinary
+const cloudinary = require('cloudinary').v2;
 
+// ต้องมีการตั้งค่า Config (สำคัญมาก!)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 export default async function handler(request, response) {
   // แก้ปัญหา CORS
   response.setHeader('Access-Control-Allow-Origin', '*');
