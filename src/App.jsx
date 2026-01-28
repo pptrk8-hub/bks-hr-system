@@ -71,28 +71,24 @@ const LEAVE_TYPES = [
   { id: 'half_day', label: 'ลาครึ่งวัน', color: 'bg-yellow-100 text-yellow-700', barColor: 'bg-yellow-500' },
   { id: 'maternity', label: 'ลาคลอด', color: 'bg-pink-100 text-pink-700', barColor: 'bg-pink-500' },
   { id: 'religious', label: 'ลาศาสนา', color: 'bg-purple-100 text-purple-700', barColor: 'bg-purple-500' },
-  { id: 'late', label: 'มาสาย', color: 'bg-gray-100 text-gray-700', barColor: 'bg-gray-500' }
+  { id: 'late', label: 'มาสาย', color: 'bg-gray-100 text-gray-700', barColor: 'bg-gray-500' },
+  { id: 'out_of_campus', label: 'ขออนุญาตออกนอกสถานศึกษา', color: 'bg-blue-100 text-blue-700', barColor: 'bg-blue-500' }
 ];
 
 // --- 3. HELPER FUNCTIONS ---
-// [NEW] ฟังก์ชันสำหรับอัปโหลดไป Cloudinary
 const uploadToCloudinary = async (base64Data) => {
-  // ถ้าไม่มีข้อมูล หรือไม่ใช่ Base64 (เช่น เป็น Link อยู่แล้ว) ให้คืนค่าเดิมกลับไป
   if (!base64Data || typeof base64Data !== 'string' || !base64Data.startsWith("data:")) {
     return base64Data;
   }
-
   try {
     const res = await fetch('/api/upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ data: base64Data }),
     });
-    
     if (!res.ok) throw new Error('Upload response was not ok');
-    
     const data = await res.json();
-    return data.url; // ส่งคืน Link ที่ได้จาก Cloud
+    return data.url; 
   } catch (error) {
     console.error("Cloudinary Upload Error:", error);
     return null;
@@ -113,7 +109,7 @@ const getCycleInfo = (dateObj) => {
 const calculateDays = (start, end, type) => {
   if (!start || !end) return 0;
   if (type === 'half_day') return 0.5;
-  if (type === 'late') return 0;
+  if (type === 'late' || type === 'out_of_campus') return 0;
   const s = new Date(start); const e = new Date(end);
   if (isNaN(s.getTime()) || isNaN(e.getTime())) return 0; 
   return Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1; 
@@ -248,8 +244,7 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
   const myTrainings = trainings.filter(t => t.userId === user.id);
   const myPortfolios = portfolio.filter(p => p.userId === user.id);
 
-  // --- LOGIC UPDATE: Count all except late for times, Exclude religious from days ---
-  const leaveEntries = myLeaves.filter(l => l.leaveType !== 'late');
+  const leaveEntries = myLeaves.filter(l => !['late', 'out_of_campus'].includes(l.leaveType));
   const totalTimes = leaveEntries.length; 
   
   const totalDaysUsed = leaveEntries
@@ -282,7 +277,6 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
   });
 
-  // Added this line to prevent ReferenceError as leaveStats was missing in the original snippet provided
   const leaveStats = LEAVE_TYPES.map(type => {
     const count = currentMonthLeaves.filter(l => l.leaveType === type.id).length;
     return { ...type, count };
@@ -323,7 +317,7 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
               <div className="w-full bg-gray-100 rounded-full h-2">
                 <div className={`h-2 rounded-full transition-all ${myStats.totalDaysUsed > QUOTAS.days ? 'bg-red-500' : 'bg-orange-500'}`} style={{ width: `${Math.min((myStats.totalDaysUsed / QUOTAS.days) * 100, 100)}%` }}></div>
               </div>
-              <p className="text-xs text-gray-400 mt-1">*นับรวมทุกประเภท (ยกเว้นวันลาศาสนา)</p>
+              <p className="text-xs text-gray-400 mt-1">*นับรวมทุกประเภท (ยกเว้นวันลาศาสนา/ออกนอกสถานศึกษา)</p>
             </div>
 
             <div className="grid grid-cols-2 gap-2 mt-2">
@@ -432,7 +426,6 @@ const SalaryModule = ({ usersData, onUpdateUser, showToast }) => {
   const [formData, setFormData] = useState({ salary: 0, academic: 0, backPay: 0 });
   const filteredUsers = usersData.filter(u => u.name.includes(search));
   
-  // Calculate Total Budget (Salary + Academic + BackPay)
   const totalBudget = usersData.reduce((acc, curr) => acc + (Number(curr.salary) || 0) + (Number(curr.academic) || 0) + (Number(curr.backPay) || 0), 0);
   
   const handleEdit = (user) => { 
@@ -440,7 +433,7 @@ const SalaryModule = ({ usersData, onUpdateUser, showToast }) => {
     setFormData({ 
       salary: user.salary || 0, 
       academic: user.academic || 0,
-      backPay: user.backPay || 0 // Load backPay
+      backPay: user.backPay || 0 
     }); 
     setIsModalOpen(true); 
   };
@@ -449,7 +442,7 @@ const SalaryModule = ({ usersData, onUpdateUser, showToast }) => {
     onUpdateUser(currentUserEdit.id, { 
       salary: Number(formData.salary), 
       academic: Number(formData.academic),
-      backPay: Number(formData.backPay) // Save backPay
+      backPay: Number(formData.backPay) 
     }); 
     setIsModalOpen(false); 
     showToast("อัปเดตข้อมูลเงินเดือนเรียบร้อย"); 
@@ -483,7 +476,6 @@ const SalaryModule = ({ usersData, onUpdateUser, showToast }) => {
                 <th className="p-3">ตำแหน่ง</th>
                 <th className="p-3 text-right">เงินเดือน</th>
                 <th className="p-3 text-right">เงินวิทยฐานะ</th>
-                {/* Added Back Pay Column */}
                 <th className="p-3 text-right">ตกเบิก</th>
                 <th className="p-3 text-right text-green-700">รวมรับสุทธิ</th>
                 <th className="p-3 text-center">แก้ไข</th>
@@ -525,7 +517,6 @@ const SalaryModule = ({ usersData, onUpdateUser, showToast }) => {
             <label className="block text-sm font-medium text-gray-700 mb-1">เงินวิทยฐานะ (บาท)</label>
             <input type="number" className="w-full p-2 border rounded" value={formData.academic} onChange={e => setFormData({...formData, academic: e.target.value})} />
           </div>
-          {/* Added Back Pay Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">เงินเดือนตกเบิก (บาท)</label>
             <input type="number" className="w-full p-2 border rounded" value={formData.backPay} onChange={e => setFormData({...formData, backPay: e.target.value})} />
@@ -561,7 +552,6 @@ const UserManagement = ({ usersData, onAddUser, onUpdateUser, onResetPassword })
       </div>
       <div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700 uppercase font-bold"><tr><th className="p-3">ชื่อ-สกุล</th><th className="p-3">Username</th><th className="p-3">ตำแหน่ง/ฝ่าย</th><th className="p-3">สิทธิ์</th><th className="p-3">สถานะ</th><th className="p-3 text-center">จัดการ</th></tr></thead><tbody className="divide-y divide-gray-100">{filteredUsers.map(u => (<tr key={u.id} className="hover:bg-blue-50/50"><td className="p-3">
             <div className="flex items-center gap-3">
-               {/* Avatar Logic */}
                <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 overflow-hidden shrink-0">
                   {u.photoURL ? (
                     <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
@@ -586,11 +576,8 @@ const ProfileModule = ({ currentUser, onUpdateProfile, showToast }) => {
   const [preview, setPreview] = useState(currentUser.photoURL || null);
   const handleFileChange = (e) => { const file = e.target.files[0]; if (file) { if (file.size > 500000) { alert("ขนาดไฟล์ภาพต้องไม่เกิน 500KB"); return; } const reader = new FileReader(); reader.onloadend = () => { setPreview(reader.result); setFormData({ ...formData, photoURL: reader.result }); }; reader.readAsDataURL(file); } };
   
-  // [MODIFIED] Save Profile with Upload
   const handleSave = async () => { 
       let finalPhotoUrl = formData.photoURL;
-      
-      // Upload if it's base64
       if (finalPhotoUrl && finalPhotoUrl.startsWith("data:")) {
           showToast("กำลังอัปโหลดรูปโปรไฟล์...", "success");
           const uploaded = await uploadToCloudinary(finalPhotoUrl);
@@ -600,7 +587,6 @@ const ProfileModule = ({ currentUser, onUpdateProfile, showToast }) => {
               return showToast("อัปโหลดรูปไม่สำเร็จ", "error");
           }
       }
-
       onUpdateProfile(currentUser.id, { ...formData, photoURL: finalPhotoUrl }); 
       setIsEditing(false); 
       showToast("บันทึกโปรไฟล์เรียบร้อย", "success"); 
@@ -623,11 +609,9 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
   
   const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { if (file.size > 1048576) { alert("ไฟล์ภาพใหญ่เกินไป (ต้องไม่เกิน 1MB)"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, evidenceImage: reader.result }); reader.readAsDataURL(file); } };
   
-  // Auto-calculate days when dates change (only if not manually overridden in edit mode - but for simplicity, we recalc and let user adjust)
   useEffect(() => {
     if (form.start && form.end) {
        const calculated = calculateDays(form.start, form.end, form.type);
-       // Only update if it's different to prevent loops, and in edit mode user can override
        if(!isEditMode) setForm(prev => ({...prev, daysCount: calculated}));
     }
   }, [form.start, form.end, form.type]);
@@ -640,7 +624,7 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
       end: leave.endDate,
       reason: leave.reason,
       evidenceImage: leave.evidenceImage,
-      daysCount: leave.daysCount // Load existing days count
+      daysCount: leave.daysCount 
     });
     setEditingId(leave.id);
     setIsEditMode(true);
@@ -665,7 +649,6 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
     const staff = usersData.find(u => u.id === form.staffId); 
     if (!staff) return showToast("ไม่พบข้อมูลพนักงาน", 'error'); 
 
-    // [MODIFIED] Upload Logic
     let evidenceUrl = form.evidenceImage;
     if (form.evidenceImage && form.evidenceImage.startsWith("data:")) {
          showToast("กำลังอัปโหลดรูปภาพ...", "success");
@@ -674,7 +657,6 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
     }
 
     const cycle = getCycleInfo(new Date(form.start)); 
-    // Use the daysCount from form (which might be edited by Super Admin)
     const days = Number(form.daysCount); 
 
     const leaveData = { 
@@ -689,7 +671,7 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
       fiscalYear: cycle.year, 
       cycleLabel: cycle.label, 
       recordedBy: currentUser.name, 
-      evidenceImage: evidenceUrl // Use Link
+      evidenceImage: evidenceUrl 
     };
 
     if (isEditMode && editingId) {
@@ -723,10 +705,9 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
           <div><label className="text-sm font-bold text-gray-500">ประเภท</label><select className="w-full p-2 border rounded" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>{LEAVE_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}</select></div>
           <div className="grid grid-cols-2 gap-4"><div><label className="text-sm font-bold text-gray-500">เริ่ม</label><input type="date" className="w-full p-2 border rounded" value={form.start} onChange={e => setForm({...form, start: e.target.value})} /></div><div><label className="text-sm font-bold text-gray-500">ถึง</label><input type="date" className="w-full p-2 border rounded" value={form.end} onChange={e => setForm({...form, end: e.target.value})} /></div></div>
           
-          {/* Days Count - Editable for Super Admin */}
           <div>
             <label className="text-sm font-bold text-gray-500 flex justify-between">
-              <span>จำนวนวัน (คำนวณ)</span>
+              <span>จำนวนวัน (หรือชั่วโมง)</span>
               {currentUser.role === 'Super Admin' && <span className="text-xs text-orange-500">*แก้ไขได้เฉพาะ Super Admin</span>}
             </label>
             <input 
@@ -737,6 +718,7 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
               onChange={e => setForm({...form, daysCount: e.target.value})}
               readOnly={currentUser.role !== 'Super Admin'}
             />
+            {form.type === 'out_of_campus' && <p className="text-[10px] text-blue-600 mt-1">* สำหรับรายการนี้ให้ใส่หน่วยเป็น "ชั่วโมง"</p>}
           </div>
 
           <div><label className="text-sm font-bold text-gray-500">เหตุผล</label><textarea className="w-full p-2 border rounded" rows={3} value={form.reason} onChange={e => setForm({...form, reason: e.target.value})}></textarea></div>
@@ -748,7 +730,7 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast }) => {
           </div>
         </form>
       ) : (
-        <div className="space-y-4 animate-fade-in"><div className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg"><Filter size={16} className="text-gray-400"/><select className="bg-transparent outline-none w-full text-sm" value={selectedUserFilter} onChange={e => setSelectedUserFilter(e.target.value)}><option value="">ดูทั้งหมด</option>{usersData.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></div><div className="overflow-hidden border rounded-lg"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700"><tr><th className="p-3">ชื่อ</th><th className="p-3">ประเภท</th><th className="p-3">วันที่</th><th className="p-3">จำนวน</th><th className="p-3">หลักฐาน</th>{currentUser.role === 'Super Admin' && <th className="p-3 text-center">จัดการ</th>}</tr></thead><tbody>{filteredLeaves.map(l => (<tr key={l.id} className="border-b hover:bg-gray-50"><td className="p-3 font-medium">{l.staffName}</td><td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${LEAVE_TYPES.find(t=>t.id===l.leaveType)?.color}`}>{LEAVE_TYPES.find(t=>t.id===l.leaveType)?.label}</span></td><td className="p-3 text-gray-500">{formatDateThai(l.startDate)} - {formatDateThai(l.endDate)}</td><td className="p-3">{l.daysCount} วัน</td><td className="p-3">{l.evidenceImage ? <a href={l.evidenceImage} target="_blank" className="text-blue-600 flex items-center gap-1"><FileText size={16}/> ดูรูป</a> : '-'}</td>
+        <div className="space-y-4 animate-fade-in"><div className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg"><Filter size={16} className="text-gray-400"/><select className="bg-transparent outline-none w-full text-sm" value={selectedUserFilter} onChange={e => setSelectedUserFilter(e.target.value)}><option value="">ดูทั้งหมด</option>{usersData.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></div><div className="overflow-hidden border rounded-lg"><table className="w-full text-sm text-left"><thead className="bg-gray-50 text-gray-700"><tr><th className="p-3">ชื่อ</th><th className="p-3">ประเภท</th><th className="p-3">วันที่</th><th className="p-3">จำนวน</th><th className="p-3">หลักฐาน</th>{currentUser.role === 'Super Admin' && <th className="p-3 text-center">จัดการ</th>}</tr></thead><tbody>{filteredLeaves.map(l => (<tr key={l.id} className="border-b hover:bg-gray-50"><td className="p-3 font-medium">{l.staffName}</td><td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${LEAVE_TYPES.find(t=>t.id===l.leaveType)?.color}`}>{LEAVE_TYPES.find(t=>t.id===l.leaveType)?.label}</span></td><td className="p-3 text-gray-500">{formatDateThai(l.startDate)} - {formatDateThai(l.endDate)}</td><td className="p-3">{l.daysCount} {l.leaveType === 'out_of_campus' ? 'ชม.' : 'วัน'}</td><td className="p-3">{l.evidenceImage ? <a href={l.evidenceImage} target="_blank" className="text-blue-600 flex items-center gap-1"><FileText size={16}/> ดูรูป</a> : '-'}</td>
           {currentUser.role === 'Super Admin' && (
             <td className="p-3 text-center flex justify-center gap-2">
               <button onClick={() => handleEdit(l)} className="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-orange-100 hover:text-orange-600 transition" title="แก้ไข">
@@ -774,7 +756,6 @@ const TrainingModule = ({ currentUser, authUser, showToast, usersData }) => {
   useEffect(() => { if (!authUser) return; const qMy = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')); const unsubMy = onSnapshot(qMy, (snap) => { const data = snap.docs.map(d => ({id: d.id, ...d.data()})); setTrainings(data.filter(t => t.userId === currentUser.id)); }); if (currentUser.role !== 'User') { const qAll = query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')); const unsubAll = onSnapshot(qAll, (snap) => setAllTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => { unsubMy(); unsubAll(); }; } return () => unsubMy(); }, [currentUser, authUser]);
   const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { if (file.size > 1048576) { alert("ไฟล์ภาพใหญ่เกินไป"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, evidenceImage: reader.result }); reader.readAsDataURL(file); } };
   
-  // [MODIFIED] Add Training with Upload
   const addTraining = async (e) => { 
       e.preventDefault(); 
       let evidenceUrl = form.evidenceImage;
@@ -804,7 +785,6 @@ const PortfolioModule = ({ currentUser, authUser, showToast }) => {
   const handleImageChange = (e) => { const file = e.target.files[0]; if(file) { if (file.size > 1048576) { alert("รูปภาพต้องขนาดไม่เกิน 1MB"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, image: reader.result }); reader.readAsDataURL(file); } };
   const handlePdfChange = (e) => { const file = e.target.files[0]; if(file) { if (file.size > 2097152) { alert("ไฟล์ PDF ต้องขนาดไม่เกิน 2MB"); return; } const reader = new FileReader(); reader.onloadend = () => setForm({ ...form, pdf: reader.result }); reader.readAsDataURL(file); } };
   
-  // [MODIFIED] Add Item with Uploads (Image + PDF)
   const addItem = async (e) => { 
       e.preventDefault(); 
       let imageUrl = form.image;
@@ -841,8 +821,6 @@ const ReportModule = ({ usersData, authUser }) => {
   const [portfolioYear, setPortfolioYear] = useState(new Date().getFullYear() + 543);
   const [selectedPortfolioUser, setSelectedPortfolioUser] = useState(usersData[0]?.id || '');
 
-  // FIXED: Moved sortedUsers logic to TOP of component to prevent ReferenceError
-  // Sorting Logic for Reports
   const sortedUsers = useMemo(() => {
     return [...usersData].sort((a, b) => {
       const getPriority = (user) => {
@@ -870,8 +848,7 @@ const ReportModule = ({ usersData, authUser }) => {
     return d.getMonth() === parseInt(reportMonth) && d.getFullYear() === parseInt(reportYear); 
   }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate)), [leaves, reportMonth, reportYear]);
   
-  // This hook now works because sortedUsers is defined above
-  const leaveSummaryData = useMemo(() => { const reportDateObj = new Date(reportYear, reportMonth, 1); const reportCycleInfo = getCycleInfo(reportDateObj); const cycleLeaves = leaves.filter(l => l.cycle === reportCycleInfo.cycle && l.fiscalYear === reportCycleInfo.year); const summary = sortedUsers.map(staff => { const staffLeaves = cycleLeaves.filter(l => l.staffName === staff.name); const totals = { name: staff.name, sick: 0, personal: 0, half_day: 0, maternity: 0, religious: 0, late: 0, totalDays: 0, totalTimes: 0 }; staffLeaves.forEach(l => { const days = Number(l.daysCount) || 0; totals.totalDays += days; if (['sick', 'personal', 'religious'].includes(l.leaveType)) { totals.totalTimes += 1; } if (l.leaveType === 'sick') totals.sick += days; else if (l.leaveType === 'personal') totals.personal += days; else if (l.leaveType === 'half_day') totals.half_day += days; else if (l.leaveType === 'maternity') totals.maternity += days; else if (l.leaveType === 'religious') totals.religious += days; else if (l.leaveType === 'late') totals.late += 1; }); return totals; }); return { cycleLabel: reportCycleInfo.label, summary }; }, [leaves, reportMonth, reportYear, sortedUsers]);
+  const leaveSummaryData = useMemo(() => { const reportDateObj = new Date(reportYear, reportMonth, 1); const reportCycleInfo = getCycleInfo(reportDateObj); const cycleLeaves = leaves.filter(l => l.cycle === reportCycleInfo.cycle && l.fiscalYear === reportCycleInfo.year); const summary = sortedUsers.map(staff => { const staffLeaves = cycleLeaves.filter(l => l.staffName === staff.name); const totals = { name: staff.name, sick: 0, personal: 0, half_day: 0, maternity: 0, religious: 0, late: 0, out_of_campus: 0, totalDays: 0, totalTimes: 0 }; staffLeaves.forEach(l => { const count = Number(l.daysCount) || 0; if (!['late', 'out_of_campus'].includes(l.leaveType)) { totals.totalDays += count; totals.totalTimes += 1; } if (l.leaveType === 'sick') totals.sick += count; else if (l.leaveType === 'personal') totals.personal += count; else if (l.leaveType === 'half_day') totals.half_day += count; else if (l.leaveType === 'maternity') totals.maternity += count; else if (l.leaveType === 'religious') totals.religious += count; else if (l.leaveType === 'late') totals.late += 1; else if (l.leaveType === 'out_of_campus') totals.out_of_campus += count; }); return totals; }); return { cycleLabel: reportCycleInfo.label, summary }; }, [leaves, reportMonth, reportYear, sortedUsers]);
   
   const trainingReportData = useMemo(() => usersData.map(u => { const userTrainings = trainings.filter(t => t.userId === u.id); const totalHours = userTrainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0); return { ...u, totalHours, count: userTrainings.length }; }).sort((a, b) => b.totalHours - a.totalHours), [trainings, usersData]);
   const portfolioReportData = useMemo(() => portfolios.filter(p => p.userId === selectedPortfolioUser && parseInt(p.year) === parseInt(portfolioYear)), [portfolios, selectedPortfolioUser, portfolioYear]);
@@ -889,10 +866,9 @@ const ReportModule = ({ usersData, authUser }) => {
         <div className="flex items-end"><button onClick={handlePrint} className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded-lg shadow flex items-center justify-center gap-2"><Printer size={18}/> พิมพ์ PDF</button></div>
       </div>
       <div className="w-full max-w-[210mm] mx-auto bg-white text-black p-4 min-h-[297mm]">
-        {activeReport === 'leave' && (<div><div className="mb-6 relative"><img src={GARUDA_URL} alt="Garuda" className="absolute top-0 left-0" style={{ width: '1.5cm', height: 'auto' }} /><div className="text-center"><h3 className="text-2xl font-bold">บันทึกข้อความ</h3></div><div className="text-left mt-4 leading-relaxed"><p><strong>ส่วนราชการ</strong> โรงเรียนบ้านบากัน อำเภออ่าวลึก จังหวัดกระบี่</p><p><strong>ที่</strong> ................................................. <strong>วันที่</strong> {new Date().getDate()} {THAI_MONTHS_FULL[new Date().getMonth()]} {new Date().getFullYear() + 543}</p><p><strong>เรื่อง</strong> รายงานสรุปการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</p></div><hr className="my-4 border-black"/><p className="text-left mb-4"><strong>เรียน ผู้อำนวยการโรงเรียนบ้านบากัน</strong></p><p className="text-left indent-8 mb-4">ด้วยข้าพเจ้าได้รับมอบหมายให้รวบรวมสถิติการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน <u>{THAI_MONTHS_FULL[reportMonth]} พ.ศ. {parseInt(reportYear) + 543}</u> เพื่อนำเสนอต่อผู้บริหาร ดังรายละเอียดต่อไปนี้</p></div><div className="mb-6"><h4 className="font-bold mb-2">1. รายการลาประจำเดือน</h4><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center w-10">ที่</th><th className="border border-black p-1 text-center w-32">ว/ด/ป ที่ลา</th><th className="border border-black p-1 text-left">ชื่อ-สกุล</th><th className="border border-black p-1 text-center w-24">ประเภท</th><th className="border border-black p-1 text-center w-16">วัน</th><th className="border border-black p-1 text-left">หมายเหตุ</th></tr></thead><tbody>{leaveReportData.length > 0 ? leaveReportData.map((row, index) => (<tr key={row.id}><td className="border border-black p-1 text-center align-top">{index + 1}</td><td className="border border-black p-1 text-center align-top">{formatDateThai(row.startDate)} {row.startDate !== row.endDate && <><br/>-{formatDateThai(row.endDate)}</>}</td><td className="border border-black p-1 align-top">{row.staffName}</td><td className="border border-black p-1 text-center align-top">{LEAVE_TYPES.find(t=>t.id === row.leaveType)?.label}</td><td className="border border-black p-1 text-center align-top">{row.daysCount}</td><td className="border border-black p-1 align-top">{row.reason || "-"}</td></tr>)) : <tr><td colSpan={6} className="border border-black p-4 text-center">-- ไม่มีรายการลาในเดือนนี้ --</td></tr>}</tbody></table></div><div className="mb-8 page-break"><div className="flex justify-between items-end mb-2"><h4 className="font-bold">2. สรุปวันลาสะสม ({leaveSummaryData.cycleLabel})</h4><span className="text-xs">* หน่วยเป็น "วัน" (มาสาย นับเป็น "ครั้ง")</span></div><table className="w-full border-collapse border border-black text-xs"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center">ที่</th><th className="border border-black p-1 text-left w-40">ชื่อ-สกุล</th><th className="border border-black p-1 text-center">ป่วย</th><th className="border border-black p-1 text-center">กิจ</th><th className="border border-black p-1 text-center">ครึ่งวัน</th><th className="border border-black p-1 text-center">คลอด</th><th className="border border-black p-1 text-center">ศาสนา</th><th className="border border-black p-1 text-center bg-gray-100">รวมวัน</th><th className="border border-black p-1 text-center bg-gray-100 text-blue-800">รวมครั้ง</th><th className="border border-black p-1 text-center text-red-600">สาย(ครั้ง)</th></tr></thead><tbody>{leaveSummaryData.summary.map((staff, idx) => (<tr key={idx} className={staff.totalDays > 0 ? "" : "text-gray-400"}><td className="border border-black p-1 text-center">{idx + 1}</td><td className="border border-black p-1">{staff.name}</td><td className="border border-black p-1 text-center">{staff.sick || '-'}</td><td className="border border-black p-1 text-center">{staff.personal || '-'}</td><td className="border border-black p-1 text-center">{staff.half_day || '-'}</td><td className="border border-black p-1 text-center">{staff.maternity || '-'}</td><td className="border border-black p-1 text-center">{staff.religious || '-'}</td><td className="border border-black p-1 text-center font-bold bg-gray-50">{staff.totalDays || '-'}</td><td className="border border-black p-1 text-center font-bold bg-gray-50 text-blue-800">{staff.totalTimes || '-'}</td><td className="border border-black p-1 text-center text-red-600">{staff.late || '-'}</td></tr>))}</tbody></table></div><div className="grid grid-cols-2 gap-4 px-4 page-break"><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสุมาลี บุญชู )</p><p>ฝ่ายบริหารงานบุคคล</p></div><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสาวทิพวรรณ ศรีทองแก้ว )</p><p>รองผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div><div className="mt-8 text-center px-4"><p className="mb-2">ทราบ / อนุญาต</p><p className="mb-6">ลงชื่อ .......................................................</p><p className="font-bold">( นายพลภัทร ธีระกุล )</p><p>ผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div>)}
+        {activeReport === 'leave' && (<div><div className="mb-6 relative"><img src={GARUDA_URL} alt="Garuda" className="absolute top-0 left-0" style={{ width: '1.5cm', height: 'auto' }} /><div className="text-center"><h3 className="text-2xl font-bold">บันทึกข้อความ</h3></div><div className="text-left mt-4 leading-relaxed"><p><strong>ส่วนราชการ</strong> โรงเรียนบ้านบากัน อำเภออ่าวลึก จังหวัดกระบี่</p><p><strong>ที่</strong> ................................................. <strong>วันที่</strong> {new Date().getDate()} {THAI_MONTHS_FULL[new Date().getMonth()]} {new Date().getFullYear() + 543}</p><p><strong>เรื่อง</strong> รายงานสรุปการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</p></div><hr className="my-4 border-black"/><p className="text-left mb-4"><strong>เรียน ผู้อำนวยการโรงเรียนบ้านบากัน</strong></p><p className="text-left indent-8 mb-4">ด้วยข้าพเจ้าได้รับมอบหมายให้รวบรวมสถิติการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน <u>{THAI_MONTHS_FULL[reportMonth]} พ.ศ. {parseInt(reportYear) + 543}</u> เพื่อนำเสนอต่อผู้บริหาร ดังรายละเอียดต่อไปนี้</p></div><div className="mb-6"><h4 className="font-bold mb-2">1. รายการลาประจำเดือน</h4><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center w-10">ที่</th><th className="border border-black p-1 text-center w-32">ว/ด/ป ที่ลา</th><th className="border border-black p-1 text-left">ชื่อ-สกุล</th><th className="border border-black p-1 text-center w-24">ประเภท</th><th className="border border-black p-1 text-center w-16">วัน/ชม.</th><th className="border border-black p-1 text-left">หมายเหตุ</th></tr></thead><tbody>{leaveReportData.length > 0 ? leaveReportData.map((row, index) => (<tr key={row.id}><td className="border border-black p-1 text-center align-top">{index + 1}</td><td className="border border-black p-1 text-center align-top">{formatDateThai(row.startDate)} {row.startDate !== row.endDate && <><br/>-{formatDateThai(row.endDate)}</>}</td><td className="border border-black p-1 align-top">{row.staffName}</td><td className="border border-black p-1 text-center align-top">{LEAVE_TYPES.find(t=>t.id === row.leaveType)?.label}</td><td className="border border-black p-1 text-center align-top">{row.daysCount}</td><td className="border border-black p-1 align-top">{row.reason || "-"}</td></tr>)) : <tr><td colSpan={6} className="border border-black p-4 text-center">-- ไม่มีรายการลาในเดือนนี้ --</td></tr>}</tbody></table></div><div className="mb-8 page-break"><div className="flex justify-between items-end mb-2"><h4 className="font-bold">2. สรุปวันลาสะสม ({leaveSummaryData.cycleLabel})</h4><span className="text-xs">* หน่วยเป็น "วัน" (มาสาย/ออกนอกสถานศึกษา นับเป็น "ครั้ง/ชั่วโมง")</span></div><table className="w-full border-collapse border border-black text-[10px]"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center">ที่</th><th className="border border-black p-1 text-left w-32">ชื่อ-สกุล</th><th className="border border-black p-1 text-center">ป่วย</th><th className="border border-black p-1 text-center">กิจ</th><th className="border border-black p-1 text-center">ครึ่งวัน</th><th className="border border-black p-1 text-center">คลอด</th><th className="border border-black p-1 text-center">ศาสนา</th><th className="border border-black p-1 text-center bg-gray-50">รวมวัน</th><th className="border border-black p-1 text-center text-blue-800">รวมครั้ง</th><th className="border border-black p-1 text-center text-red-600">สาย(ครั้ง)</th><th className="border border-black p-1 text-center text-indigo-600">นอก(ชม.)</th></tr></thead><tbody>{leaveSummaryData.summary.map((staff, idx) => (<tr key={idx} className={staff.totalDays > 0 || staff.out_of_campus > 0 ? "" : "text-gray-400"}><td className="border border-black p-1 text-center">{idx + 1}</td><td className="border border-black p-1">{staff.name}</td><td className="border border-black p-1 text-center">{staff.sick || '-'}</td><td className="border border-black p-1 text-center">{staff.personal || '-'}</td><td className="border border-black p-1 text-center">{staff.half_day || '-'}</td><td className="border border-black p-1 text-center">{staff.maternity || '-'}</td><td className="border border-black p-1 text-center">{staff.religious || '-'}</td><td className="border border-black p-1 text-center font-bold bg-gray-50">{staff.totalDays || '-'}</td><td className="border border-black p-1 text-center font-bold text-blue-800">{staff.totalTimes || '-'}</td><td className="border border-black p-1 text-center text-red-600">{staff.late || '-'}</td><td className="border border-black p-1 text-center text-indigo-600">{staff.out_of_campus || '-'}</td></tr>))}</tbody></table></div><div className="grid grid-cols-2 gap-4 px-4 page-break"><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสุมาลี บุญชู )</p><p>ฝ่ายบริหารงานบุคคล</p></div><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสาวทิพวรรณ ศรีทองแก้ว )</p><p>รองผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div><div className="mt-8 text-center px-4"><p className="mb-2">ทราบ / อนุญาต</p><p className="mb-6">ลงชื่อ .......................................................</p><p className="font-bold">( นายพลภัทร ธีระกุล )</p><p>ผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div>)}
         {activeReport === 'salary' && (<div><div className="text-center mb-8"><h3 className="text-xl font-bold">รายงานสรุปบัญชีถือจ่ายเงินเดือนข้าราชการครูและบุคลากร</h3><h4 className="text-lg">โรงเรียนบ้านบากัน ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</h4></div><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-2 text-center w-12">ที่</th><th className="border border-black p-2 text-left">ชื่อ-สกุล</th><th className="border border-black p-2 text-left">ตำแหน่ง</th><th className="border border-black p-2 text-right">เงินเดือน</th><th className="border border-black p-2 text-right">เงินวิทยฐานะ</th><th className="border border-black p-2 text-right">ตกเบิก</th><th className="border border-black p-2 text-right font-bold bg-gray-100">รวมรับสุทธิ</th><th className="border border-black p-2 text-center w-24">ลายมือชื่อ</th></tr></thead><tbody>{sortedUsers.map((user, index) => { const total = (Number(user.salary)||0) + (Number(user.academic)||0) + (Number(user.backPay)||0); return (<tr key={user.id}><td className="border border-black p-2 text-center">{index + 1}</td><td className="border border-black p-2">{user.name}</td><td className="border border-black p-2">{user.position}</td><td className="border border-black p-2 text-right">{user.salary ? formatCurrency(user.salary) : '-'}</td><td className="border border-black p-2 text-right">{user.academic ? formatCurrency(user.academic) : '-'}</td><td className="border border-black p-2 text-right">{user.backPay ? formatCurrency(user.backPay) : '-'}</td><td className="border border-black p-2 text-right font-bold bg-gray-50">{formatCurrency(total)}</td><td className="border border-black p-2"></td></tr>); })}</tbody><tfoot><tr className="bg-gray-200 font-bold"><td colSpan={3} className="border border-black p-2 text-center">รวมทั้งสิ้น</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.salary)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.academic)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.backPay)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(salaryTotal)}</td><td className="border border-black p-2"></td></tr></tfoot></table>
         
-        {/* Updated Signature Section with correct name and better spacing */}
         <div className="grid grid-cols-3 gap-4 px-4 mt-12 page-break">
           <div className="text-center">
             <p className="mb-8">ลงชื่อ ...........................................</p>
@@ -933,11 +909,9 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const [customLogo, setCustomLogo] = useState(null);
   
-  // Forgot Password State
-  const [view, setView] = useState('login'); // 'login' or 'forgot'
+  const [view, setView] = useState('login'); 
   const [forgotEmail, setForgotEmail] = useState('');
 
-  // Leaves, Trainings, Portfolio data for Dashboard
   const [leaves, setLeaves] = useState([]);
   const [trainings, setTrainings] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
@@ -952,13 +926,11 @@ export default function App() {
       let fetchedUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
       if (fetchedUsers.length === 0) { 
-        // Initial Seed
         for (const user of INITIAL_USERS) { 
           await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...user, password: DEFAULT_PASSWORD, status: 'active', createdAt: serverTimestamp() }); 
         } 
         window.location.reload(); 
       } else { 
-        // Auto-Sync: Check for missing users in INITIAL_USERS and add them
         const existingUsernames = fetchedUsers.map(u => u.username);
         let hasNewUser = false;
         
@@ -970,7 +942,6 @@ export default function App() {
         }
 
         if (hasNewUser) {
-           // Re-fetch if new users were added
            const updatedSnap = await getDocs(q);
            setUsersData(updatedSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         } else {
@@ -978,12 +949,10 @@ export default function App() {
         }
       } 
       
-      // Subscribe to other collections for dashboard
       onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves')), (snap) => setLeaves(snap.docs.map(d => d.data())));
       onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')), (snap) => setTrainings(snap.docs.map(d => d.data())));
       onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')), (snap) => setPortfolio(snap.docs.map(d => d.data())));
       
-      // Check for saved custom logo in localStorage (as a quick fix for current user)
       const savedLogo = localStorage.getItem(`bks_logo_${appId}`);
       if(savedLogo) setCustomLogo(savedLogo);
 
@@ -1013,14 +982,13 @@ export default function App() {
   const handleResetPassword = async (user) => { if(!confirm(`รีเซ็ตรหัสผ่าน ${user.name} เป็น ${DEFAULT_PASSWORD}?`)) return; await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', user.id), { password: DEFAULT_PASSWORD }); showToast("รีเซ็ตรหัสเรียบร้อย"); };
   const handleAddUser = async (newUser) => { if(usersData.some(u => u.username === newUser.username)) return showToast("Username ซ้ำ", 'error'); const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), { ...newUser, createdAt: serverTimestamp() }); setUsersData([...usersData, { id: docRef.id, ...newUser }]); showToast("เพิ่มผู้ใช้สำเร็จ"); };
 
-  // Function to handle logo upload manually
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setCustomLogo(reader.result);
-        localStorage.setItem(`bks_logo_${appId}`, reader.result); // Save to local storage for persistence on this device
+        localStorage.setItem(`bks_logo_${appId}`, reader.result); 
         showToast("อัปเดตโลโก้เรียบร้อย (เฉพาะเครื่องนี้)");
       };
       reader.readAsDataURL(file);
