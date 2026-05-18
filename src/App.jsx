@@ -64,7 +64,7 @@ const INITIAL_USERS = [
   { name: "นายอิมรอน นายาว", role: 'User', position: 'ครู', username: 'iron', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นายอมรศักดิ์ สระวารี", role: 'User', position: 'นักการภารโรง', username: 'amornsak', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 }, 
   { name: "นางสาวอมรรัตน์ ทองนวล", role: 'User', position: 'ครู', username: 'amornrat', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
-];
+;
 
 const LEAVE_TYPES = [
   { id: 'sick', label: 'ลาป่วย', color: 'bg-red-100 text-red-700', barColor: 'bg-red-500' },
@@ -1056,7 +1056,7 @@ export default function App() {
         {activeTab === 'training' && <TrainingModule currentUser={currentUser} authUser={authUser} showToast={showToast} usersData={usersData} />} 
         {activeTab === 'portfolio' && <PortfolioModule currentUser={currentUser} authUser={authUser} showToast={showToast} />} 
       </div>
-      <div className="mt-8 text-center text-xs text-gray-400 border-t pt-4">เว็บแอพ BKS-HR พัฒนาโดย นายพลภัทร ธีระกุล ผู้อำนวยการโรงเรียนบ้านบากัน</div>
+      <div className="mt-8 text-center text-xs text-gray-400 border-t pt-4">เว็บแอพ BKS-HR พัฒนาโดย นายพลภัทร ธนเดชธีระกุลธีระกุล ผู้อำนวยการโรงเรียนบ้านบากัน</div>
     </div> </div> </main> </div>
   );
 }
