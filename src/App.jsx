@@ -43,7 +43,7 @@ const THAI_MONTHS_FULL = ["มกราคม", "กุมภาพันธ์"
 
 // Initial Seed Data
 const INITIAL_USERS = [
-  { name: "นายพลภัทร ธีระกุล", role: 'Super Admin', position: 'ผู้อำนวยการโรงเรียน', username: 'phonlaphat', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นายพลภัทร ธนเดชธีระกุล", role: 'Super Admin', position: 'ผู้อำนวยการโรงเรียน', username: 'phonlaphat', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางสาวทิพวรรณ ศรีทองแก้ว", role: 'Super Admin', position: 'รองผู้อำนวยการโรงเรียน', username: 'tippawan', department: 'บริหาร', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางสุมาลี บุญชู", role: 'Admin HR', position: 'ครู (เจ้าหน้าที่บุคคล)', username: 'sumalee', department: 'บุคคล', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางรอยฮัน โต๊ะดำ", role: 'User', position: 'ครู', username: 'royhan', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
@@ -62,7 +62,8 @@ const INITIAL_USERS = [
   { name: "นางสาวอรษา ชาตรีวงศ์", role: 'User', position: 'ครู', username: 'orasa', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางสาวอารียา มาลัยกุล", role: 'User', position: 'ครู', username: 'areeya', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นายอิมรอน นายาว", role: 'User', position: 'ครู', username: 'iron', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
-  { name: "นายอมรศักดิ์ สระวารี", role: 'User', position: 'นักการภารโรง', username: 'amornsak', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 }
+  { name: "นายอมรศักดิ์ สระวารี", role: 'User', position: 'นักการภารโรง', username: 'amornsak', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 }, 
+  { name: "นางสาวอมรรัตน์ ทองนวล", role: 'User', position: 'ครู', username: 'amornrat', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
 ];
 
 const LEAVE_TYPES = [
@@ -70,7 +71,7 @@ const LEAVE_TYPES = [
   { id: 'personal', label: 'ลากิจส่วนตัว', color: 'bg-orange-100 text-orange-700', barColor: 'bg-orange-500' },
   { id: 'half_day', label: 'ลาครึ่งวัน', color: 'bg-yellow-100 text-yellow-700', barColor: 'bg-yellow-500' },
   { id: 'maternity', label: 'ลาคลอด', color: 'bg-pink-100 text-pink-700', barColor: 'bg-pink-500' },
-  { id: 'religious', label: 'ลาศาสนา', color: 'bg-purple-100 text-purple-700', barColor: 'bg-purple-500' },
+  { id: 'religious', label: 'ลาไปศาสนา', color: 'bg-purple-100 text-purple-700', barColor: 'bg-purple-500' },
   { id: 'late', label: 'มาสาย', color: 'bg-gray-100 text-gray-700', barColor: 'bg-gray-500' },
   { id: 'out_of_campus', label: 'ขออนุญาตออกนอกสถานศึกษา', color: 'bg-blue-100 text-blue-700', barColor: 'bg-blue-500' }
 ];
@@ -884,7 +885,7 @@ const ReportModule = ({ usersData, authUser }) => {
           </div>
           <div className="text-center">
             <p className="mb-8">ลงชื่อ ...........................................</p>
-            <p className="font-bold mb-1">( นายพลภัทร ธีระกุล )</p>
+            <p className="font-bold mb-1">( นายพลภัทร ธนเดชธีระกุล )</p>
             <p>ผู้อนุมัติ</p>
             <p className="text-xs text-gray-500">(ผู้อำนวยการโรงเรียน)</p>
           </div>
