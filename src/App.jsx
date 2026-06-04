@@ -32,7 +32,7 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'banbakan-hr-system';
 
 // --- LOGO & ASSETS MANAGEMENT ---
 const DRIVE_THUMBNAIL_URL = "https://drive.google.com/thumbnail?id=1b8Ep2pW70A3Ig-4ILoosQ78Kb73hx81t&sz=w1000";
-const LOGO_FALLBACK = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjIwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMDAxZjViO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMDAwMzM7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8IS0tIFNoaWVsZCAtLT4KICA8cGF0aCBkPSJNMTUgMzAgTCAxMDAgMTAgTCAxODUgMzAgQyAxODUgOTAgMTc1IDE1MCAxMDAgMjEwIEMgMjUgMTUwIDE1IDkwIDE1IDMwIFoiIGZpbGw9InVybCgjZ3JhZDEpIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjUiLz4KICA8IS0tIFdyZWF0aCAoU2ltcGxpZmllZCkgLS0+CiAgPHBhdGggZD0iTTUwIDkwIFEgMjAgMTQwIDcwIDE3MCIgc3Ryb2tlPSIjNGRiOGZmIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuOCIvPgogIDxwYXRoIGQ9Ik0xNTAgOTAgUSAxODAgMTQwIDEzMCAxNzAiIHN0cm9rZT0iIzRkYjhmZiIgc3Ryb2tlLXdpZHRoPSI1IiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjgiLz4KICA8IS0tIFTleHQgQktTLUhSIC0tPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTE1IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSI0MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiPkJLUy1IUjwvdGV4dD4KICA8IS0tIFJpYmJvbiAtLT4KICA8cGF0aCBkPSJNMTUgMTYwIEwgMTg1IDE2MCBMIDE3NSAxOTAgTCAyNSAxOTAgWiIgZmlsbD0iIzAwYmNkNCIgc3Ryb2tlPSJkYXJrY3lhbiIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxODIiIGZvbnQtZmFtaWx5PSJzYW5zLXNZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBzdHlsZT0idGV4dC1zaGFkb3c6IDFweCAxcHCAMnB4IGJsYWNrOyI+QkFOQkFLQU4gU0NIT09MPC90ZXh0Pgo8L3N2Zz4=`;
+const LOGO_FALLBACK = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjIwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMDAxZjViO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMDAwMzM7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8IS0tIFNoaWVsZCAtLT4KICA8cGF0aCBkPSJNMTUgMzAgTCAxMDAgMTAgTCAxODUgMzAgQyAxODUgOTAgMTc1IDE1MCAxMDAgMjEwIEMgMjUgMTUwIDE1IDkwIDE1IDMwIFoiIGZpbGw9InVybCgjZ3JhZDEpIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjUiLz4KICA8IS0tIFdyZWF0aCAoU2ltcGxpZmllZCkgLS0+CiAgPHBhdGggZD0iTTUwIDkwIFEgMjAgMTQwIDcwIDE3MCIgc3Ryb2tlPSIjNGRiOGZmIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuOCIvPgogIDxwYXRoIGQ9Ik0xNTAgOTAgUSAxODAgMTQwIDEzMCAxNzAiIHN0cm9rZT0iIzRkYjhmZiIgc3Ryb2tlLXdpZHRoPSI1IiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjgiLz4KICA8IS0tIFRleHQgQktTLUhSIC0tPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTE1IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSI0MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiPkJLUy1IUjwvdGV4dD4KICA8IS0tIFJpYmJvbiAtLT4KICA8cGF0aCBkPSJNMTUgMTYwIEwgMTg1IDE2MCBMIDE3NSAxOTAgTCAyNSAxOTAgWiIgZmlsbD0iIzAwYmNkNCIgc3Ryb2tlPSJkYXJrY3lhbiIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxODIiIGZvbnQtZmFtaWx5PSJzYW5zLXNZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBzdHlsZT0idGV4dC1zaGFkb3c6IDFweCAxcHCAMnB4IGJsYWNrOyI+QkFOQkFLQU4gU0NIT09MPC90ZXh0Pgo8L3N2Zz4=`;
 const GARUDA_URL = "https://drive.google.com/thumbnail?id=10lfNN_Qqqip6NpLtw-u16SQxVKlbfGBR&sz=w1000";
 
 // --- 2. CONSTANTS & DATA ---
@@ -49,7 +49,6 @@ const INITIAL_USERS = [
   { name: "นางสาวจันทนา บุตรฤทธิ์", role: 'User', position: 'ครู', username: 'jantana', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางอุษณี บุญทิพย์", role: 'User', position: 'ครู', username: 'usanee', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางสาวกษมา ดินแดง", role: 'User', position: 'ครู', username: 'kasama', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
-  { name: "นางสาวจิตสุภา บุญถาวร", role: 'User', position: 'ครู', username: 'jitsupa', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางสาวนุรไลลา สาและ", role: 'User', position: 'ครู', username: 'nurlaila', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางสาวบริมาส มะลิผล", role: 'User', position: 'ครู', username: 'barimas', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางสาวมลิวัลย์ ชุมบุญ", role: 'User', position: 'ครู', username: 'maliwan', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
@@ -74,7 +73,6 @@ const LEAVE_TYPES = [
   { id: 'out_of_campus', label: 'ขออนุญาตออกนอกสถานศึกษา', color: 'bg-blue-100 text-blue-700', barColor: 'bg-blue-500' }
 ];
 
-// --- 3. HELPER FUNCTIONS ---
 const uploadToCloudinary = async (base64Data) => {
   if (!base64Data || typeof base64Data !== 'string' || !base64Data.startsWith("data:")) {
     return base64Data;
@@ -188,13 +186,13 @@ const StatCard = ({ title, value, unit, icon: Icon, color }) => (
   </div>
 );
 
-// Sidebar with print hiding
 const Sidebar = ({ user, activeTab, setActiveTab, onLogout, isOpen, toggleSidebar, customLogo }) => {
+  // Update the roles array of 'report' menu to include 'User' role, granting access to everyone
   const menus = [
     { id: 'dashboard', label: 'ภาพรวมระบบ', icon: PieChart, roles: ['Super Admin', 'Admin HR', 'User'] },
     { id: 'leaves', label: 'ระบบวันลา', icon: Calendar, roles: ['Super Admin', 'Admin HR'] },
     { id: 'salary', label: 'ระบบเงินเดือน', icon: DollarSign, roles: ['Super Admin', 'Admin HR'] },
-    { id: 'report', label: 'พิมพ์รายงาน', icon: Printer, roles: ['Super Admin', 'Admin HR'] },
+    { id: 'report', label: 'พิมพ์รายงาน', icon: Printer, roles: ['Super Admin', 'Admin HR', 'User'] },
     { id: 'profile', label: 'โปรไฟล์ของฉัน', icon: User, roles: ['Super Admin', 'Admin HR', 'User'] },
     { id: 'training', label: 'ประวัติอบรม', icon: BookOpen, roles: ['Super Admin', 'Admin HR', 'User'] },
     { id: 'portfolio', label: 'ผลงานดีเด่น', icon: Award, roles: ['Super Admin', 'Admin HR', 'User'] },
@@ -389,12 +387,13 @@ const DashboardModule = ({ user, leaves, trainings, portfolio, setActiveTab, use
                   <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-teal-600 shadow-sm"><DollarSign size={16}/></div>
                   <span className="text-xs font-medium">เงินเดือน</span>
                 </button>
-                <button onClick={() => setActiveTab('report')} className="p-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl flex flex-col items-center justify-center gap-2 transition border border-gray-200">
-                  <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-gray-600 shadow-sm"><Printer size={16}/></div>
-                  <span className="text-xs font-medium">รายงาน</span>
-                </button>
               </>
             )}
+            {/* Moved "พิมพ์รายงาน" button out of role limitation block so all roles can access it */}
+            <button onClick={() => setActiveTab('report')} className="p-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl flex flex-col items-center justify-center gap-2 transition border border-gray-200">
+              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-gray-600 shadow-sm"><Printer size={16}/></div>
+              <span className="text-xs font-medium">รายงาน</span>
+            </button>
             <button onClick={() => setActiveTab('training')} className="p-3 bg-green-50 hover:bg-green-100 text-green-700 rounded-xl flex flex-col items-center justify-center gap-2 transition border border-green-100">
               <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-green-600 shadow-sm"><BookOpen size={16}/></div>
               <span className="text-xs font-medium">อบรม</span>
@@ -816,10 +815,17 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast, triggerConfi
     setEditingId(null);
   };
   
+  // Dynamic snapshot mapping referencing ONLY currently active/non-deleted usersData
   const filteredLeaves = useMemo(() => {
-    const mapped = leaves.map(l => {
+    const activeUserNames = usersData.map(u => u.name);
+    // Filter out leaves recorded for deleted users
+    const activeLeaves = leaves.filter(l => activeUserNames.includes(l.staffName));
+    const mapped = activeLeaves.map(l => {
       const matchingUser = usersData.find(u => u.name === l.staffName);
-      return matchingUser ? { ...l, staffId: matchingUser.id } : l;
+      return {
+        ...l,
+        staffId: matchingUser ? matchingUser.id : l.staffId
+      };
     });
     return selectedUserFilter ? mapped.filter(l => l.staffId === selectedUserFilter) : mapped;
   }, [leaves, usersData, selectedUserFilter]);
@@ -1004,6 +1010,7 @@ const ReportModule = ({ usersData, authUser, showToast }) => {
   const [portfolioYear, setPortfolioYear] = useState(new Date().getFullYear() + 543);
   const [selectedPortfolioUser, setSelectedPortfolioUser] = useState(usersData[0]?.id || '');
 
+  // Sorted list utilizing ONLY currently existing usersData
   const sortedUsers = useMemo(() => {
     return [...usersData].sort((a, b) => {
       const getPriority = (user) => {
@@ -1023,6 +1030,7 @@ const ReportModule = ({ usersData, authUser, showToast }) => {
 
   useEffect(() => { if (!authUser) return; const unsubLeaves = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves')), (snap) => setLeaves(snap.docs.map(d => ({id: d.id, ...d.data()})))); const unsubTrainings = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')), (snap) => setTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); const unsubPortfolios = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')), (snap) => setPortfolios(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => { unsubLeaves(); unsubTrainings(); unsubPortfolios(); }; }, [authUser]);
   
+  // Replaced "พี่หยวน" with "คนสวย" and adjusted terminal politeness to "ค่ะ"
   const handlePrint = () => {
     try {
       window.focus();
@@ -1030,19 +1038,49 @@ const ReportModule = ({ usersData, authUser, showToast }) => {
     } catch (error) {
       console.error("Print dialog failed:", error);
       if (showToast) {
-        showToast("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์อัตโนมัติเนื่องจากเงื่อนไขความปลอดภัย ครูสุมาลีสามารถสั่งพิมพ์ได้ง่ายๆ โดยการกดคีย์ลัด Ctrl + P (หรือ Cmd + P บน Mac) หรือคลิกขวาที่รายงานแล้วเลือก พิมพ์ (Print) ครับ", "error");
+        showToast("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์อัตโนมัติเนื่องจากเงื่อนไขความปลอดภัย คนสวยสามารถสั่งพิมพ์ได้ง่ายๆ โดยการกดคีย์ลัด Ctrl + P (หรือ Cmd + P บน Mac) หรือคลิกขวาที่รายงานแล้วเลือก พิมพ์ (Print) ครับผม", "error");
       }
     }
   };
 
-  const leaveReportData = useMemo(() => leaves.filter(l => { 
-    if(!l.startDate) return false;
-    const d = new Date(l.startDate); 
-    if(isNaN(d.getTime())) return false;
-    return d.getMonth() === parseInt(reportMonth) && d.getFullYear() === parseInt(reportYear); 
-  }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate)), [leaves, reportMonth, reportYear]);
+  // Filter leaves to strictly include currently existing teachers
+  const leaveReportData = useMemo(() => {
+    const activeUserNames = usersData.map(u => u.name);
+    return leaves.filter(l => { 
+      if(!l.startDate) return false;
+      const d = new Date(l.startDate); 
+      if(isNaN(d.getTime())) return false;
+      return d.getMonth() === parseInt(reportMonth) && 
+             d.getFullYear() === parseInt(reportYear) &&
+             activeUserNames.includes(l.staffName); 
+    }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+  }, [leaves, reportMonth, reportYear, usersData]);
   
-  const leaveSummaryData = useMemo(() => { const reportDateObj = new Date(reportYear, reportMonth, 1); const reportCycleInfo = getCycleInfo(reportDateObj); const cycleLeaves = leaves.filter(l => l.cycle === reportCycleInfo.cycle && l.fiscalYear === reportCycleInfo.year); const summary = sortedUsers.map(staff => { const staffLeaves = cycleLeaves.filter(l => l.staffName === staff.name); const totals = { name: staff.name, sick: 0, personal: 0, half_day: 0, maternity: 0, religious: 0, late: 0, out_of_campus: 0, totalDays: 0, totalTimes: 0 }; staffLeaves.forEach(l => { const count = Number(l.daysCount) || 0; if (!['late', 'out_of_campus'].includes(l.leaveType)) { totals.totalDays += count; totals.totalTimes += 1; } if (l.leaveType === 'sick') totals.sick += count; else if (l.leaveType === 'personal') totals.personal += count; else if (l.leaveType === 'half_day') totals.half_day += count; else if (l.leaveType === 'maternity') totals.maternity += count; else if (l.leaveType === 'religious') totals.religious += count; else if (l.leaveType === 'late') totals.late += 1; else if (l.leaveType === 'out_of_campus') totals.out_of_campus += count; }); return totals; }); return { cycleLabel: reportCycleInfo.label, summary }; }, [leaves, reportMonth, reportYear, sortedUsers]);
+  const leaveSummaryData = useMemo(() => { 
+    const reportDateObj = new Date(reportYear, reportMonth, 1); 
+    const reportCycleInfo = getCycleInfo(reportDateObj); 
+    const cycleLeaves = leaves.filter(l => l.cycle === reportCycleInfo.cycle && l.fiscalYear === reportCycleInfo.year); 
+    const summary = sortedUsers.map(staff => { 
+      const staffLeaves = cycleLeaves.filter(l => l.staffName === staff.name); 
+      const totals = { name: staff.name, sick: 0, personal: 0, half_day: 0, maternity: 0, religious: 0, late: 0, out_of_campus: 0, totalDays: 0, totalTimes: 0 }; 
+      staffLeaves.forEach(l => { 
+        const count = Number(l.daysCount) || 0; 
+        if (!['late', 'out_of_campus'].includes(l.leaveType)) { 
+          totals.totalDays += count; 
+          totals.totalTimes += 1; 
+        } 
+        if (l.leaveType === 'sick') totals.sick += count; 
+        else if (l.leaveType === 'personal') totals.personal += count; 
+        else if (l.leaveType === 'half_day') totals.half_day += count; 
+        else if (l.leaveType === 'maternity') totals.maternity += count; 
+        else if (l.leaveType === 'religious') totals.religious += count; 
+        else if (l.leaveType === 'late') totals.late += 1; 
+        else if (l.leaveType === 'out_of_campus') totals.out_of_campus += count; 
+      }); 
+      return totals; 
+    }); 
+    return { cycleLabel: reportCycleInfo.label, summary }; 
+  }, [leaves, reportMonth, reportYear, sortedUsers]);
   
   const trainingReportData = useMemo(() => usersData.map(u => { const userTrainings = trainings.filter(t => t.userId === u.id); const totalHours = userTrainings.reduce((acc, curr) => acc + (Number(curr.hours) || 0), 0); return { ...u, totalHours, count: userTrainings.length }; }).sort((a, b) => b.totalHours - a.totalHours), [trainings, usersData]);
   const portfolioReportData = useMemo(() => portfolios.filter(p => p.userId === selectedPortfolioUser && parseInt(p.year) === parseInt(portfolioYear)), [portfolios, selectedPortfolioUser, portfolioYear]);
@@ -1060,12 +1098,12 @@ const ReportModule = ({ usersData, authUser, showToast }) => {
         <div className="flex items-end"><button onClick={handlePrint} className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded-lg shadow flex items-center justify-center gap-2"><Printer size={18}/> พิมพ์ PDF</button></div>
       </div>
 
-      {/* Floating helpful instruction box for iframe preview print users */}
+      {/* Replaced "พี่หยวน" with "คนสวย" and adjusted terminal politeness to "ครับ/ครับ!" */}
       <div className="no-print mb-6 p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-xs flex gap-3 items-start leading-relaxed">
         <AlertCircle size={18} className="text-amber-600 shrink-0 mt-0.5" />
         <div>
           <span className="font-bold block mb-0.5">💡 คำแนะนำสำหรับการพิมพ์รายงาน:</span>
-          หากครูสุมาลีกดปุ่ม <span className="font-bold text-blue-900">"พิมพ์ PDF"</span> ด้านบนแล้วหน้าต่างเครื่องพิมพ์ไม่ยอมเด้งแสดง (เนื่องจากระบบความปลอดภัยในเบราว์เซอร์โหมดพรีวิว) ครูสุมาลีสามารถสั่งพิมพ์เอกสารได้ง่าย ๆ โดยการกดปุ่มลัดที่แป้นคีย์บอร์ด <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded shadow-sm text-gray-700 font-bold mx-1">Ctrl + P</kbd> (บน Windows) หรือ <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded shadow-sm text-gray-700 font-bold mx-1">Cmd + P</kbd> (บน Mac) หรือคลิกขวาตรงพื้นที่กระดาษสีขาวของรายงานแล้วเลือกเมนู <span className="font-bold">พิมพ์... (Print...)</span> ครับ ระบบได้ซ่อนแท็บเมนูภายนอกทิ้งให้เหลือเฉพาะตัวกระดาษรายงานแบบสะอาดเรียบร้อยพร้อมพิมพ์ทันทีครับ!
+          หากคนสวยกดปุ่ม <span className="font-bold text-blue-900">"พิมพ์ PDF"</span> ด้านบนแล้วหน้าต่างเครื่องพิมพ์ไม่ยอมเด้งแสดง (เนื่องจากระบบความปลอดภัยในเบราว์เซอร์โหมดพรีวิว) คนสวยสามารถสั่งพิมพ์เอกสารได้ง่าย ๆ โดยการกดปุ่มลัดที่แป้นคีย์บอร์ด <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded shadow-sm text-gray-700 font-bold mx-1">Ctrl + P</kbd> (บน Windows) หรือ <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded shadow-sm text-gray-700 font-bold mx-1">Cmd + P</kbd> (บน Mac) หรือคลิกขวาตรงพื้นที่กระดาษสีขาวของรายงานแล้วเลือกเมนู <span className="font-bold">พิมพ์... (Print...)</span> ครับ ระบบได้ซ่อนแท็บเมนูภายนอกทิ้งให้เหลือเฉพาะตัวกระดาษรายงานแบบสะอาดเรียบร้อยพร้อมพิมพ์ทันทีครับผม!
         </div>
       </div>
 
@@ -1101,7 +1139,6 @@ const ReportModule = ({ usersData, authUser, showToast }) => {
   );
 };
 
-// --- MAIN APP LOGIC ---
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [authUser, setAuthUser] = useState(null);
@@ -1161,6 +1198,7 @@ export default function App() {
       });
       const uniqueFetchedUsers = Array.from(uniqueUsersMap.values());
 
+      // STRICT REQUIREMENT SEEDING: Seed ONLY when the DB is completely empty.
       if (fetchedUsers.length === 0) { 
         for (const user of INITIAL_USERS) { 
           // Prevent duplicates by setting document ID as username directly
@@ -1448,7 +1486,8 @@ export default function App() {
               )} 
               {activeTab === 'leaves' && (currentUser.role === 'Super Admin' || currentUser.role === 'Admin HR') && <LeaveModule currentUser={currentUser} usersData={usersData} authUser={authUser} showToast={showToast} triggerConfirm={triggerConfirm} />} 
               {activeTab === 'salary' && (currentUser.role === 'Super Admin' || currentUser.role === 'Admin HR') && <SalaryModule usersData={usersData} onUpdateUser={handleUpdateUser} showToast={showToast} />}
-              {activeTab === 'report' && (currentUser.role === 'Super Admin' || currentUser.role === 'Admin HR') && <ReportModule usersData={usersData} authUser={authUser} showToast={showToast} />}
+              {/* Removed (currentUser.role === 'Super Admin' || currentUser.role === 'Admin HR') so everyone has printing access */}
+              {activeTab === 'report' && <ReportModule usersData={usersData} authUser={authUser} showToast={showToast} />}
               {activeTab === 'profile' && <ProfileModule currentUser={currentUser} onUpdateProfile={handleUpdateUser} showToast={showToast} />} 
               {activeTab === 'training' && <TrainingModule currentUser={currentUser} authUser={authUser} showToast={showToast} usersData={usersData} />} 
               {activeTab === 'portfolio' && <PortfolioModule currentUser={currentUser} authUser={authUser} showToast={showToast} />} 
