@@ -1030,7 +1030,7 @@ const ReportModule = ({ usersData, authUser, showToast }) => {
     } catch (error) {
       console.error("Print dialog failed:", error);
       if (showToast) {
-        showToast("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์อัตโนมัติเนื่องจากเงื่อนไขความปลอดภัย พี่หยวนสามารถสั่งพิมพ์ได้ง่ายๆ โดยการกดคีย์ลัด Ctrl + P (หรือ Cmd + P บน Mac) หรือคลิกขวาที่รายงานแล้วเลือก พิมพ์ (Print) ครับ", "error");
+        showToast("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์อัตโนมัติเนื่องจากเงื่อนไขความปลอดภัย ครูสุมาลีสามารถสั่งพิมพ์ได้ง่ายๆ โดยการกดคีย์ลัด Ctrl + P (หรือ Cmd + P บน Mac) หรือคลิกขวาที่รายงานแล้วเลือก พิมพ์ (Print) ครับ", "error");
       }
     }
   };
@@ -1065,7 +1065,7 @@ const ReportModule = ({ usersData, authUser, showToast }) => {
         <AlertCircle size={18} className="text-amber-600 shrink-0 mt-0.5" />
         <div>
           <span className="font-bold block mb-0.5">💡 คำแนะนำสำหรับการพิมพ์รายงาน:</span>
-          หากพี่หยวนกดปุ่ม <span className="font-bold text-blue-900">"พิมพ์ PDF"</span> ด้านบนแล้วหน้าต่างเครื่องพิมพ์ไม่ยอมเด้งแสดง (เนื่องจากระบบความปลอดภัยในเบราว์เซอร์โหมดพรีวิว) พี่หยวนสามารถสั่งพิมพ์เอกสารได้ง่าย ๆ โดยการกดปุ่มลัดที่แป้นคีย์บอร์ด <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded shadow-sm text-gray-700 font-bold mx-1">Ctrl + P</kbd> (บน Windows) หรือ <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded shadow-sm text-gray-700 font-bold mx-1">Cmd + P</kbd> (บน Mac) หรือคลิกขวาตรงพื้นที่กระดาษสีขาวของรายงานแล้วเลือกเมนู <span className="font-bold">พิมพ์... (Print...)</span> ครับ ระบบได้ซ่อนแท็บเมนูภายนอกทิ้งให้เหลือเฉพาะตัวกระดาษรายงานแบบสะอาดเรียบร้อยพร้อมพิมพ์ทันทีครับ!
+          หากครูสุมาลีกดปุ่ม <span className="font-bold text-blue-900">"พิมพ์ PDF"</span> ด้านบนแล้วหน้าต่างเครื่องพิมพ์ไม่ยอมเด้งแสดง (เนื่องจากระบบความปลอดภัยในเบราว์เซอร์โหมดพรีวิว) ครูสุมาลีสามารถสั่งพิมพ์เอกสารได้ง่าย ๆ โดยการกดปุ่มลัดที่แป้นคีย์บอร์ด <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded shadow-sm text-gray-700 font-bold mx-1">Ctrl + P</kbd> (บน Windows) หรือ <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded shadow-sm text-gray-700 font-bold mx-1">Cmd + P</kbd> (บน Mac) หรือคลิกขวาตรงพื้นที่กระดาษสีขาวของรายงานแล้วเลือกเมนู <span className="font-bold">พิมพ์... (Print...)</span> ครับ ระบบได้ซ่อนแท็บเมนูภายนอกทิ้งให้เหลือเฉพาะตัวกระดาษรายงานแบบสะอาดเรียบร้อยพร้อมพิมพ์ทันทีครับ!
         </div>
       </div>
 
