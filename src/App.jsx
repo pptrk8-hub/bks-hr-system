@@ -129,7 +129,7 @@ const formatCurrency = (amount) => {
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in no-print">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-4 border-b">
           <h3 className="font-bold text-lg text-gray-800">{title}</h3>
@@ -142,14 +142,14 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 };
 
 const Toast = ({ message, type, onClose }) => {
-  useEffect(() => { const t = setTimeout(onClose, 3000); return () => clearTimeout(t); }, [onClose]);
+  useEffect(() => { const t = setTimeout(onClose, 4000); return () => clearTimeout(t); }, [onClose]);
   const bg = type === 'success' ? 'bg-green-600' : 'bg-red-600';
-  const toastClasses = `fixed top-4 right-4 ${bg} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in z-50`;
+  const toastClasses = `fixed top-4 right-4 ${bg} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in z-50 no-print`;
   
   return (
     <div className={toastClasses}>
       {type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-      <span className="font-medium">{message}</span>
+      <span className="font-medium text-sm">{message}</span>
     </div>
   );
 };
@@ -157,7 +157,7 @@ const Toast = ({ message, type, onClose }) => {
 const CustomConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[99] p-4 animate-fade-in">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[99] p-4 animate-fade-in no-print">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
         <div className="flex items-center gap-3 mb-4 text-red-600">
           <AlertCircle size={28} />
@@ -188,9 +188,7 @@ const StatCard = ({ title, value, unit, icon: Icon, color }) => (
   </div>
 );
 
-// --- 5. MAIN MODULES ---
-
-// Sidebar
+// Sidebar with print hiding
 const Sidebar = ({ user, activeTab, setActiveTab, onLogout, isOpen, toggleSidebar, customLogo }) => {
   const menus = [
     { id: 'dashboard', label: 'ภาพรวมระบบ', icon: PieChart, roles: ['Super Admin', 'Admin HR', 'User'] },
@@ -205,8 +203,8 @@ const Sidebar = ({ user, activeTab, setActiveTab, onLogout, isOpen, toggleSideba
 
   return (
     <>
-      {isOpen && <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={toggleSidebar}></div>}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-slate-900 text-slate-100 flex flex-col transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      {isOpen && <div className="fixed inset-0 bg-black/50 z-20 lg:hidden no-print" onClick={toggleSidebar}></div>}
+      <aside className={`no-print fixed lg:static inset-y-0 left-0 z-30 w-64 bg-slate-900 text-slate-100 flex flex-col transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-6 flex items-center gap-3 border-b border-slate-800">
           <img 
             src={customLogo || DRIVE_THUMBNAIL_URL} 
@@ -628,7 +626,7 @@ const ProfileModule = ({ currentUser, onUpdateProfile, showToast }) => {
 
   return (
     <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+      <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-600 text-slate-500"></div>
       <div className="px-8 pb-8">
         <div className="relative -mt-12 mb-6 flex justify-between items-end">
           <div className="relative group">
@@ -666,7 +664,7 @@ const ProfileModule = ({ currentUser, onUpdateProfile, showToast }) => {
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">เบอร์โทรศัพท์</label>
               {isEditing ? (
-                <input className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" value={formData.tel || ''} onChange={e => setFormData({...formData, tel: e.target.value})} placeholder="เช่น 08x-xxx-xxxx" />
+                <input className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none animate-none" value={formData.tel || ''} onChange={e => setFormData({...formData, tel: e.target.value})} placeholder="เช่น 08x-xxx-xxxx" />
               ) : (
                 <p className="text-gray-900 font-medium">{currentUser.tel || '-'}</p>
               )}
@@ -674,7 +672,7 @@ const ProfileModule = ({ currentUser, onUpdateProfile, showToast }) => {
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">อีเมล</label>
               {isEditing ? (
-                <input className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" value={formData.email || ''} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="example@email.com" />
+                <input className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-700" value={formData.email || ''} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="example@email.com" />
               ) : (
                 <p className="text-gray-900 font-medium">{currentUser.email || '-'}</p>
               )}
@@ -682,7 +680,7 @@ const ProfileModule = ({ currentUser, onUpdateProfile, showToast }) => {
             <div className="md:col-span-2">
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">ที่อยู่</label>
               {isEditing ? (
-                <textarea className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" rows={2} value={formData.address || ''} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="ที่อยู่ปัจจุบัน..." />
+                <textarea className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-700" rows={2} value={formData.address || ''} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="ที่อยู่ปัจจุบัน..." />
               ) : (
                 <p className="text-gray-900">{currentUser.address || '-'}</p>
               )}
@@ -690,7 +688,7 @@ const ProfileModule = ({ currentUser, onUpdateProfile, showToast }) => {
             <div className="md:col-span-2">
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">ความเชี่ยวชาญ / Bio</label>
               {isEditing ? (
-                <textarea className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" rows={3} value={formData.bio || ''} onChange={e => setFormData({...formData, bio: e.target.value})} placeholder="แนะนำตัวสั้นๆ หรือระบุความเชี่ยวชาญ..." />
+                <textarea className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-700" rows={3} value={formData.bio || ''} onChange={e => setFormData({...formData, bio: e.target.value})} placeholder="แนะนำตัวสั้นๆ หรือระบุความเชี่ยวชาญ..." />
               ) : (
                 <p className="text-gray-900">{currentUser.bio || '-'}</p>
               )}
@@ -818,7 +816,6 @@ const LeaveModule = ({ currentUser, usersData, authUser, showToast, triggerConfi
     setEditingId(null);
   };
   
-  // Normalizing duplicate staffIds based on staffName mapping to current unique usersData IDs
   const filteredLeaves = useMemo(() => {
     const mapped = leaves.map(l => {
       const matchingUser = usersData.find(u => u.name === l.staffName);
@@ -996,7 +993,7 @@ const PortfolioModule = ({ currentUser, authUser, showToast }) => {
   );
 };
 
-const ReportModule = ({ usersData, authUser }) => {
+const ReportModule = ({ usersData, authUser, showToast }) => {
   const [activeReport, setActiveReport] = useState('leave');
   const [leaves, setLeaves] = useState([]);
   const [trainings, setTrainings] = useState([]);
@@ -1026,7 +1023,18 @@ const ReportModule = ({ usersData, authUser }) => {
 
   useEffect(() => { if (!authUser) return; const unsubLeaves = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'leaves')), (snap) => setLeaves(snap.docs.map(d => ({id: d.id, ...d.data()})))); const unsubTrainings = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'trainings')), (snap) => setTrainings(snap.docs.map(d => ({id: d.id, ...d.data()})))); const unsubPortfolios = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'portfolio')), (snap) => setPortfolios(snap.docs.map(d => ({id: d.id, ...d.data()})))); return () => { unsubLeaves(); unsubTrainings(); unsubPortfolios(); }; }, [authUser]);
   
-  const handlePrint = () => window.print();
+  const handlePrint = () => {
+    try {
+      window.focus();
+      window.print();
+    } catch (error) {
+      console.error("Print dialog failed:", error);
+      if (showToast) {
+        showToast("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์อัตโนมัติเนื่องจากเงื่อนไขความปลอดภัย พี่หยวนสามารถสั่งพิมพ์ได้ง่ายๆ โดยการกดคีย์ลัด Ctrl + P (หรือ Cmd + P บน Mac) หรือคลิกขวาที่รายงานแล้วเลือก พิมพ์ (Print) ครับ", "error");
+      }
+    }
+  };
+
   const leaveReportData = useMemo(() => leaves.filter(l => { 
     if(!l.startDate) return false;
     const d = new Date(l.startDate); 
@@ -1051,8 +1059,18 @@ const ReportModule = ({ usersData, authUser }) => {
         {activeReport === 'portfolio' && (<><div className="flex-1"><label className="block text-sm font-medium text-gray-700 mb-1">เลือกบุคลากร</label><select value={selectedPortfolioUser} onChange={(e) => setSelectedPortfolioUser(e.target.value)} className="w-full p-2 border rounded">{usersData.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></div><div className="flex-1"><label className="block text-sm font-medium text-gray-700 mb-1">ปีการศึกษา (พ.ศ.)</label><input type="number" value={portfolioYear} onChange={(e) => setPortfolioYear(e.target.value)} className="w-full p-2 border rounded" /></div></>)}
         <div className="flex items-end"><button onClick={handlePrint} className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded-lg shadow flex items-center justify-center gap-2"><Printer size={18}/> พิมพ์ PDF</button></div>
       </div>
+
+      {/* Floating helpful instruction box for iframe preview print users */}
+      <div className="no-print mb-6 p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-xs flex gap-3 items-start leading-relaxed">
+        <AlertCircle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+        <div>
+          <span className="font-bold block mb-0.5">💡 คำแนะนำสำหรับการพิมพ์รายงาน:</span>
+          หากพี่หยวนกดปุ่ม <span className="font-bold text-blue-900">"พิมพ์ PDF"</span> ด้านบนแล้วหน้าต่างเครื่องพิมพ์ไม่ยอมเด้งแสดง (เนื่องจากระบบความปลอดภัยในเบราว์เซอร์โหมดพรีวิว) พี่หยวนสามารถสั่งพิมพ์เอกสารได้ง่าย ๆ โดยการกดปุ่มลัดที่แป้นคีย์บอร์ด <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded shadow-sm text-gray-700 font-bold mx-1">Ctrl + P</kbd> (บน Windows) หรือ <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded shadow-sm text-gray-700 font-bold mx-1">Cmd + P</kbd> (บน Mac) หรือคลิกขวาตรงพื้นที่กระดาษสีขาวของรายงานแล้วเลือกเมนู <span className="font-bold">พิมพ์... (Print...)</span> ครับ ระบบได้ซ่อนแท็บเมนูภายนอกทิ้งให้เหลือเฉพาะตัวกระดาษรายงานแบบสะอาดเรียบร้อยพร้อมพิมพ์ทันทีครับ!
+        </div>
+      </div>
+
       <div className="w-full max-w-[210mm] mx-auto bg-white text-black p-4 min-h-[297mm]">
-        {activeReport === 'leave' && (<div><div className="mb-6 relative"><img src={GARUDA_URL} alt="Garuda" className="absolute top-0 left-0" style={{ width: '1.5cm', height: 'auto' }} /><div className="text-center"><h3 className="text-2xl font-bold">บันทึกข้อความ</h3></div><div className="text-left mt-4 leading-relaxed"><p><strong>ส่วนราชการ</strong> โรงเรียนบ้านบากัน อำเภออ่าวลึก จังหวัดกระบี่</p><p><strong>ที่</strong> ................................................. <strong>วันที่</strong> {new Date().getDate()} {THAI_MONTHS_FULL[new Date().getMonth()]} {new Date().getFullYear() + 543}</p><p><strong>เรื่อง</strong> รายงานสรุปการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</p></div><hr className="my-4 border-black"/><p className="text-left mb-4"><strong>เรียน ผู้อำนวยการโรงเรียนบ้านบากัน</strong></p><p className="text-left indent-8 mb-4">ด้วยข้าพเจ้าได้รับมอบหมายให้รวบรวมสถิติการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน <u>{THAI_MONTHS_FULL[reportMonth]} พ.ศ. {parseInt(reportYear) + 543}</u> เพื่อนำเสนอต่อผู้บริหาร ดังรายละเอียดต่อไปนี้</p></div><div className="mb-6"><h4 className="font-bold mb-2">1. รายการลาประจำเดือน</h4><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center w-10">ที่</th><th className="border border-black p-1 text-center w-32">ว/ด/ป ที่ลา</th><th className="border border-black p-1 text-left">ชื่อ-สกุล</th><th className="border border-black p-1 text-center w-24">ประเภท</th><th className="border border-black p-1 text-center w-16">วัน/ชม.</th><th className="border border-black p-1 text-left">หมายเหตุ</th></tr></thead><tbody>{leaveReportData.length > 0 ? leaveReportData.map((row, index) => (<tr key={row.id}><td className="border border-black p-1 text-center align-top">{index + 1}</td><td className="border border-black p-1 text-center align-top">{formatDateThai(row.startDate)} {row.startDate !== row.endDate && <><br/>-{formatDateThai(row.endDate)}</>}</td><td className="border border-black p-1 align-top">{row.staffName}</td><td className="border border-black p-1 text-center align-top">{LEAVE_TYPES.find(t=>t.id === row.leaveType)?.label}</td><td className="border border-black p-1 text-center align-top">{row.daysCount}</td><td className="border border-black p-1 align-top">{row.reason || "-"}</td></tr>)) : <tr><td colSpan={6} className="border border-black p-4 text-center">-- ไม่มีรายการลาในเดือนนี้ --</td></tr>}</tbody></table></div><div className="mb-8 page-break"><div className="flex justify-between items-end mb-2"><h4 className="font-bold">2. สรุปวันลาสะสม ({leaveSummaryData.cycleLabel})</h4><span className="text-xs">* หน่วยเป็น "วัน" (มาสาย/ออกนอกสถานศึกษา นับเป็น "ครั้ง/ชั่วโมง")</span></div><table className="w-full border-collapse border border-black text-[10px]"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center">ที่</th><th className="border border-black p-1 text-left w-32">ชื่อ-สกุล</th><th className="border border-black p-1 text-center">ป่วย</th><th className="border border-black p-1 text-center">กิจ</th><th className="border border-black p-1 text-center">ครึ่งวัน</th><th className="border border-black p-1 text-center">คลอด</th><th className="border border-black p-1 text-center">ศาสนา</th><th className="border border-black p-1 text-center bg-gray-50">รวมวัน</th><th className="border border-black p-1 text-center text-blue-800">รวมครั้ง</th><th className="border border-black p-1 text-center text-red-600">สาย(ครั้ง)</th><th className="border border-black p-1 text-center text-indigo-600">นอก(ชม.)</th></tr></thead><tbody>{leaveSummaryData.summary.map((staff, idx) => (<tr key={idx} className={staff.totalDays > 0 || staff.out_of_campus > 0 ? "" : "text-gray-400"}><td className="border border-black p-1 text-center">{idx + 1}</td><td className="border border-black p-1">{staff.name}</td><td className="border border-black p-1 text-center">{staff.sick || '-'}</td><td className="border border-black p-1 text-center">{staff.personal || '-'}</td><td className="border border-black p-1 text-center">{staff.half_day || '-'}</td><td className="border border-black p-1 text-center">{staff.maternity || '-'}</td><td className="border border-black p-1 text-center">{staff.religious || '-'}</td><td className="border border-black p-1 text-center font-bold bg-gray-50">{staff.totalDays || '-'}</td><td className="border border-black p-1 text-center font-bold text-blue-800">{staff.totalTimes || '-'}</td><td className="border border-black p-1 text-center text-red-600">{staff.late || '-'}</td><td className="border border-black p-1 text-center text-indigo-600">{staff.out_of_campus || '-'}</td></tr>))}</tbody></table></div><div className="grid grid-cols-2 gap-4 px-4 page-break"><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสุมาลี บุญชู )</p><p>ฝ่ายบริหารงานบุคคล</p></div><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสาวทิพวรรณ ศรีทองแก้ว )</p><p>รองผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div><div className="mt-8 text-center px-4"><p className="mb-2">ทราบ / อนุญาต</p><p className="mb-6">ลงชื่อ .......................................................</p><p className="font-bold">( นายพลภัทร ธนเดชธีระกุล )</p><p>ผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div>)}
+        {activeReport === 'leave' && (<div><div className="mb-6 relative pt-16"><img src={GARUDA_URL} alt="Garuda" className="absolute top-0 left-0" style={{ width: '1.5cm', height: 'auto' }} /><div className="text-center mb-6"><h3 className="text-2xl font-bold">บันทึกข้อความ</h3></div><div className="text-left mt-6 leading-relaxed"><p><strong>ส่วนราชการ</strong> โรงเรียนบ้านบากัน อำเภออ่าวลึก จังหวัดกระบี่</p><p><strong>ที่</strong> ................................................. <strong>วันที่</strong> {new Date().getDate()} {THAI_MONTHS_FULL[new Date().getMonth()]} {new Date().getFullYear() + 543}</p><p><strong>เรื่อง</strong> รายงานสรุปการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</p></div><hr className="my-4 border-black"/><p className="text-left mb-4"><strong>เรียน ผู้อำนวยการโรงเรียนบ้านบากัน</strong></p><p className="text-left indent-8 mb-4">ด้วยข้าพเจ้าได้รับมอบหมายให้รวบรวมสถิติการลาของข้าราชการครูและบุคลากรทางการศึกษา ประจำเดือน <u>{THAI_MONTHS_FULL[reportMonth]} พ.ศ. {parseInt(reportYear) + 543}</u> เพื่อนำเสนอต่อผู้บริหาร ดังรายละเอียดต่อไปนี้</p></div><div className="mb-6"><h4 className="font-bold mb-2">1. รายการลาประจำเดือน</h4><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center w-10">ที่</th><th className="border border-black p-1 text-center w-32">ว/ด/ป ที่ลา</th><th className="border border-black p-1 text-left">ชื่อ-สกุล</th><th className="border border-black p-1 text-center w-24">ประเภท</th><th className="border border-black p-1 text-center w-16">วัน/ชม.</th><th className="border border-black p-1 text-left">หมายเหตุ</th></tr></thead><tbody>{leaveReportData.length > 0 ? leaveReportData.map((row, index) => (<tr key={row.id}><td className="border border-black p-1 text-center align-top">{index + 1}</td><td className="border border-black p-1 text-center align-top">{formatDateThai(row.startDate)} {row.startDate !== row.endDate && <><br/>-{formatDateThai(row.endDate)}</>}</td><td className="border border-black p-1 align-top">{row.staffName}</td><td className="border border-black p-1 text-center align-top">{LEAVE_TYPES.find(t=>t.id === row.leaveType)?.label}</td><td className="border border-black p-1 text-center align-top">{row.daysCount}</td><td className="border border-black p-1 align-top">{row.reason || "-"}</td></tr>)) : <tr><td colSpan={6} className="border border-black p-4 text-center">-- ไม่มีรายการลาในเดือนนี้ --</td></tr>}</tbody></table></div><div className="mb-8 page-break"><div className="flex justify-between items-end mb-2"><h4 className="font-bold">2. สรุปวันลาสะสม ({leaveSummaryData.cycleLabel})</h4><span className="text-xs">* หน่วยเป็น "วัน" (มาสาย/ออกนอกสถานศึกษา นับเป็น "ครั้ง/ชั่วโมง")</span></div><table className="w-full border-collapse border border-black text-[10px]"><thead><tr className="bg-gray-200"><th className="border border-black p-1 text-center">ที่</th><th className="border border-black p-1 text-left w-32">ชื่อ-สกุล</th><th className="border border-black p-1 text-center">ป่วย</th><th className="border border-black p-1 text-center">กิจ</th><th className="border border-black p-1 text-center">ครึ่งวัน</th><th className="border border-black p-1 text-center">คลอด</th><th className="border border-black p-1 text-center">ศาสนา</th><th className="border border-black p-1 text-center bg-gray-50">รวมวัน</th><th className="border border-black p-1 text-center text-blue-800">รวมครั้ง</th><th className="border border-black p-1 text-center text-red-600">สาย(ครั้ง)</th><th className="border border-black p-1 text-center text-indigo-600">นอก(ชม.)</th></tr></thead><tbody>{leaveSummaryData.summary.map((staff, idx) => (<tr key={idx} className={staff.totalDays > 0 || staff.out_of_campus > 0 ? "" : "text-gray-400"}><td className="border border-black p-1 text-center">{idx + 1}</td><td className="border border-black p-1">{staff.name}</td><td className="border border-black p-1 text-center">{staff.sick || '-'}</td><td className="border border-black p-1 text-center">{staff.personal || '-'}</td><td className="border border-black p-1 text-center">{staff.half_day || '-'}</td><td className="border border-black p-1 text-center">{staff.maternity || '-'}</td><td className="border border-black p-1 text-center">{staff.religious || '-'}</td><td className="border border-black p-1 text-center font-bold bg-gray-50">{staff.totalDays || '-'}</td><td className="border border-black p-1 text-center font-bold text-blue-800">{staff.totalTimes || '-'}</td><td className="border border-black p-1 text-center text-red-600">{staff.late || '-'}</td><td className="border border-black p-1 text-center text-indigo-600">{staff.out_of_campus || '-'}</td></tr>))}</tbody></table></div><div className="grid grid-cols-2 gap-4 px-4 page-break"><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสุมาลี บุญชู )</p><p>ฝ่ายบริหารงานบุคคล</p></div><div className="text-center pt-4"><p>ลงชื่อ ....................................................... ผู้ตรวจสอบ</p><p className="mt-2 font-bold">( นางสาวทิพวรรณ ศรีทองแก้ว )</p><p>รองผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div><div className="mt-8 text-center px-4"><p className="mb-2">ทราบ / อนุญาต</p><p className="mb-6">ลงชื่อ .......................................................</p><p className="font-bold">( นายพลภัทร ธนเดชธีระกุล )</p><p>ผู้อำนวยการโรงเรียนบ้านบากัน</p></div></div>)}
         {activeReport === 'salary' && (<div><div className="text-center mb-8"><h3 className="text-xl font-bold">รายงานสรุปบัญชีถือจ่ายเงินเดือนข้าราชการครูและบุคลากร</h3><h4 className="text-lg">โรงเรียนบ้านบากัน ประจำเดือน {THAI_MONTHS_FULL[reportMonth]} {parseInt(reportYear) + 543}</h4></div><table className="w-full border-collapse border border-black text-sm"><thead><tr className="bg-gray-200"><th className="border border-black p-2 text-center w-12">ที่</th><th className="border border-black p-2 text-left">ชื่อ-สกุล</th><th className="border border-black p-2 text-left">ตำแหน่ง</th><th className="border border-black p-2 text-right">เงินเดือน</th><th className="border border-black p-2 text-right">เงินวิทยฐานะ</th><th className="border border-black p-2 text-right">ตกเบิก</th><th className="border border-black p-2 text-right font-bold bg-gray-100">รวมรับสุทธิ</th><th className="border border-black p-2 text-center w-24">ลายมือชื่อ</th></tr></thead><tbody>{sortedUsers.map((user, index) => { const total = (Number(user.salary)||0) + (Number(user.academic)||0) + (Number(user.backPay)||0); return (<tr key={user.id}><td className="border border-black p-2 text-center">{index + 1}</td><td className="border border-black p-2">{user.name}</td><td className="border border-black p-2">{user.position}</td><td className="border border-black p-2 text-right">{user.salary ? formatCurrency(user.salary) : '-'}</td><td className="border border-black p-2 text-right">{user.academic ? formatCurrency(user.academic) : '-'}</td><td className="border border-black p-2 text-right">{user.backPay ? formatCurrency(user.backPay) : '-'}</td><td className="border border-black p-2 text-right font-bold bg-gray-50">{formatCurrency(total)}</td><td className="border border-black p-2"></td></tr>); })}</tbody><tfoot><tr className="bg-gray-200 font-bold"><td colSpan={3} className="border border-black p-2 text-center">รวมทั้งสิ้น</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.salary)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.academic)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(usersData.reduce((a,b)=>a+(Number(b.backPay)||0),0))}</td><td className="border border-black p-2 text-right">{formatCurrency(salaryTotal)}</td><td className="border border-black p-2"></td></tr></tfoot></table>
         
         <div className="grid grid-cols-3 gap-4 px-4 mt-12 page-break">
@@ -1312,7 +1330,6 @@ export default function App() {
 
   const handleAddUser = async (newUser) => { 
     if(usersData.some(u => u.username === newUser.username)) return showToast("Username ซ้ำ", 'error'); 
-    // Create new documents with user.username as the ID to avoid duplicates
     const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', newUser.username);
     await setDoc(userDocRef, { ...newUser, createdAt: serverTimestamp() }); 
     setUsersData([...usersData, { id: newUser.username, ...newUser }]); 
@@ -1382,7 +1399,7 @@ export default function App() {
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-sans text-slate-800"> 
+    <div className="flex min-h-screen bg-slate-50 font-sans text-slate-800 print:bg-white"> 
       {toast && <Toast {...toast} onClose={() => setToast(null)} />} 
       
       {/* Global Custom Confirm Dialog */}
@@ -1395,8 +1412,8 @@ export default function App() {
       />
 
       <Sidebar user={currentUser} activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setCurrentUser(null)} isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} customLogo={customLogo} /> 
-      <main className="flex-1 flex flex-col h-screen overflow-hidden"> 
-        <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between shrink-0"> 
+      <main className="flex-1 flex flex-col h-screen overflow-hidden print:h-auto print:overflow-visible"> 
+        <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between shrink-0 no-print"> 
           <div className="flex items-center gap-3"> 
             <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"><Menu size={24}/></button> 
             <h1 className="font-bold text-lg text-gray-800 hidden sm:block">
@@ -1415,9 +1432,9 @@ export default function App() {
             {currentUser.photoURL ? (<img src={currentUser.photoURL} alt="Profile" className="w-8 h-8 rounded-full object-cover" />) : (<div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs">{currentUser.name.charAt(0)}</div>)} 
           </div> 
         </header> 
-        <div className="flex-1 overflow-y-auto p-4 lg:p-8"> 
-          <div className="max-w-7xl mx-auto min-h-[calc(100vh-120px)] flex flex-col"> 
-            <div className="flex-1">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-8 print:p-0 print:overflow-visible"> 
+          <div className="max-w-7xl mx-auto min-h-[calc(100vh-120px)] flex flex-col print:min-h-0 print:h-auto print:overflow-visible"> 
+            <div className="flex-1 print:block">
               {activeTab === 'dashboard' && <DashboardModule user={currentUser} leaves={leaves} trainings={trainings} portfolio={portfolio} setActiveTab={setActiveTab} usersData={usersData} />} 
               {activeTab === 'users' && currentUser.role === 'Super Admin' && (
                 <UserManagement 
@@ -1431,12 +1448,12 @@ export default function App() {
               )} 
               {activeTab === 'leaves' && (currentUser.role === 'Super Admin' || currentUser.role === 'Admin HR') && <LeaveModule currentUser={currentUser} usersData={usersData} authUser={authUser} showToast={showToast} triggerConfirm={triggerConfirm} />} 
               {activeTab === 'salary' && (currentUser.role === 'Super Admin' || currentUser.role === 'Admin HR') && <SalaryModule usersData={usersData} onUpdateUser={handleUpdateUser} showToast={showToast} />}
-              {activeTab === 'report' && (currentUser.role === 'Super Admin' || currentUser.role === 'Admin HR') && <ReportModule usersData={usersData} authUser={authUser} />}
+              {activeTab === 'report' && (currentUser.role === 'Super Admin' || currentUser.role === 'Admin HR') && <ReportModule usersData={usersData} authUser={authUser} showToast={showToast} />}
               {activeTab === 'profile' && <ProfileModule currentUser={currentUser} onUpdateProfile={handleUpdateUser} showToast={showToast} />} 
               {activeTab === 'training' && <TrainingModule currentUser={currentUser} authUser={authUser} showToast={showToast} usersData={usersData} />} 
               {activeTab === 'portfolio' && <PortfolioModule currentUser={currentUser} authUser={authUser} showToast={showToast} />} 
             </div>
-            <div className="mt-8 text-center text-xs text-gray-400 border-t pt-4">เว็บแอพ BKS-HR พัฒนาโดย นายพลภัทร ธนเดชธีระกุล ผู้อำนวยการโรงเรียนบ้านบากัน</div>
+            <div className="mt-8 text-center text-xs text-gray-400 border-t pt-4 no-print">เว็บแอพ BKS-HR พัฒนาโดย นายพลภัทร ธนเดชธีระกุล ผู้อำนวยการโรงเรียนบ้านบากัน</div>
           </div> 
         </div> 
       </main> 
