@@ -11,7 +11,8 @@ import {
   Calendar, User, FileText, PieChart, 
   Save, AlertCircle, CheckCircle, Upload, Trash2, Clock,
   Lock, LogOut, ShieldCheck, Printer, Menu, X,
-  Users, Award, BookOpen, Edit, Settings, Search, Bell, ChevronRight, Briefcase, Plus, Filter, Eye, Camera, BarChart2, Link as LinkIcon, File, DollarSign, Mail, HelpCircle
+  Users, Award, BookOpen, Edit, Settings, Search, Bell, ChevronRight, Briefcase, Plus, Filter, Eye, Camera, BarChart2, Link as LinkIcon, File, DollarSign, Mail, HelpCircle,
+  Copy, Check
 } from 'lucide-react';
 
 const userFirebaseConfig = {
@@ -552,7 +553,11 @@ const UserManagement = ({ usersData, onAddUser, onUpdateUser, onResetPassword, o
   const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({});
   const openAdd = () => { setIsEditMode(false); setFormData({ name: '', username: '', password: DEFAULT_PASSWORD, role: 'User', position: 'ครู', department: '', tel: '', email: '', status: 'active' }); setIsModalOpen(true); };
-  const openEdit = (user) => { setIsEditMode(true); setFormData(user); setIsModalOpen(true); };
+  const openEdit = (user) => { 
+    setIsEditMode(true); 
+    setFormData({ ...user, password: user.password || DEFAULT_PASSWORD }); 
+    setIsModalOpen(true); 
+  };
   const handleSubmit = (e) => { e.preventDefault(); if (isEditMode) onUpdateUser(formData.id, formData); else onAddUser(formData); setIsModalOpen(false); };
   const filteredUsers = usersData.filter(u => u.name.includes(search) || u.username.includes(search));
   return (
@@ -582,7 +587,75 @@ const UserManagement = ({ usersData, onAddUser, onUpdateUser, onResetPassword, o
               <button onClick={() => onDeleteUser(u)} className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100" title="ลบผู้ใช้งาน"><Trash2 size={16}/></button>
             )}
           </td></tr>))}</tbody></table></div>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditMode ? "แก้ไขผู้ใช้" : "เพิ่มผู้ใช้ใหม่"}><form onSubmit={handleSubmit} className="space-y-3"><div><label className="text-xs font-bold text-gray-500">ชื่อ-สกุล</label><input className="w-full p-2 border rounded" required value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} /></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">Username</label><input className="w-full p-2 border rounded" required disabled={isEditMode} value={formData.username || ''} onChange={e => setFormData({...formData, username: e.target.value})} /></div>{!isEditMode && <div><label className="text-xs font-bold text-gray-500">Password</label><input className="w-full p-2 border rounded" value={DEFAULT_PASSWORD} disabled /></div>}</div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">ตำแหน่ง</label><input className="w-full p-2 border rounded" value={formData.position || ''} onChange={e => setFormData({...formData, position: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">กลุ่มสาระ/ฝ่าย</label><input className="w-full p-2 border rounded" value={formData.department || ''} onChange={e => setFormData({...formData, department: e.target.value})} /></div></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">เบอร์โทร</label><input className="w-full p-2 border rounded" value={formData.tel || ''} onChange={e => setFormData({...formData, tel: e.target.value})} /></div><div><label className="text-xs font-bold text-gray-500">Email</label><input className="w-full p-2 border rounded" value={formData.email || ''} onChange={e => setFormData({...formData, email: e.target.value})} /></div></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-bold text-gray-500">สิทธิ์ (Role)</label><select className="w-full p-2 border rounded" value={formData.role || 'User'} onChange={e => setFormData({...formData, role: e.target.value})}><option value="User">User (ครูทั่วไป)</option><option value="Admin HR">Admin HR</option><option value="Super Admin">Super Admin</option></select></div><div><label className="text-xs font-bold text-gray-500">สถานะ</label><select className="w-full p-2 border rounded" value={formData.status || 'active'} onChange={e => setFormData({...formData, status: e.target.value})}><option value="active">Active (ใช้งาน)</option><option value="disabled">Disabled (ปิด)</option></select></div></div><button className="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700 mt-4">บันทึกข้อมูล</button></form></Modal>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditMode ? "แก้ไขผู้ใช้" : "เพิ่มผู้ใช้ใหม่"}>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="text-xs font-bold text-gray-500">ชื่อ-สกุล</label>
+            <input className="w-full p-2 border rounded" required value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-bold text-gray-500">Username</label>
+              <input 
+                className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" 
+                required 
+                value={formData.username || ''} 
+                onChange={e => setFormData({...formData, username: e.target.value.trim().toLowerCase()})} 
+                placeholder="ชื่อผู้ใช้งาน"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-gray-500">Password</label>
+              <input 
+                className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" 
+                required
+                type="text"
+                value={formData.password || ''} 
+                onChange={e => setFormData({...formData, password: e.target.value})}
+                placeholder="รหัสผ่าน"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-bold text-gray-500">ตำแหน่ง</label>
+              <input className="w-full p-2 border rounded" value={formData.position || ''} onChange={e => setFormData({...formData, position: e.target.value})} />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-gray-500">กลุ่มสาระ/ฝ่าย</label>
+              <input className="w-full p-2 border rounded" value={formData.department || ''} onChange={e => setFormData({...formData, department: e.target.value})} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-bold text-gray-500">เบอร์โทร</label>
+              <input className="w-full p-2 border rounded" value={formData.tel || ''} onChange={e => setFormData({...formData, tel: e.target.value})} />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-gray-500">Email</label>
+              <input className="w-full p-2 border rounded" value={formData.email || ''} onChange={e => setFormData({...formData, email: e.target.value})} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-bold text-gray-500">สิทธิ์ (Role)</label>
+              <select className="w-full p-2 border rounded" value={formData.role || 'User'} onChange={e => setFormData({...formData, role: e.target.value})}>
+                <option value="User">User (ครูทั่วไป)</option>
+                <option value="Admin HR">Admin HR</option>
+                <option value="Super Admin">Super Admin</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-gray-500">สถานะ</label>
+              <select className="w-full p-2 border rounded" value={formData.status || 'active'} onChange={e => setFormData({...formData, status: e.target.value})}>
+                <option value="active">Active (ใช้งาน)</option>
+                <option value="disabled">Disabled (ปิด)</option>
+              </select>
+            </div>
+          </div>
+          <button className="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700 mt-4">บันทึกข้อมูล</button>
+        </form>
+      </Modal>
     </div>
   );
 };
@@ -1149,6 +1222,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [customLogo, setCustomLogo] = useState(null);
+  const [copiedCode, setCopiedCode] = useState(false);
   
   // Custom dialog confirmations instead of native confirms
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
@@ -1210,6 +1284,19 @@ export default function App() {
         const existingUsernames = uniqueFetchedUsers.map(u => u.username.trim().toLowerCase());
         let hasNewUser = false;
         
+        // Auto-migrate: ถ้าพบบัญชีเดิมของ นายอิมรอน นายาว ที่ยังเป็น username 'iron' ให้อัปเดตเป็น 'imron' ทันที
+        const ironUser = uniqueFetchedUsers.find(u => u.username === 'iron' || (u.name && u.name.includes('อิมรอน') && u.username !== 'imron'));
+        if (ironUser) {
+          try {
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', ironUser.id), {
+              username: 'imron'
+            });
+            ironUser.username = 'imron';
+          } catch (err) {
+            console.error("Migration error:", err);
+          }
+        }
+
         for (const user of INITIAL_USERS) {
           const targetUsername = user.username.trim().toLowerCase();
           if (!existingUsernames.includes(targetUsername)) {
@@ -1327,8 +1414,12 @@ export default function App() {
   };
 
   const handleUpdateUser = async (uid, data) => { 
+    // ตรวจสอบกรณีเปลี่ยน username ซ้ำกับผู้อื่น
+    if (data.username && usersData.some(u => u.id !== uid && u.username.toLowerCase() === data.username.toLowerCase())) {
+      return showToast("Username นี้มีผู้ใช้งานแล้ว กรุณาใช้ชื่ออื่น", "error");
+    }
     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), data); 
-    showToast("บันทึกสำเร็จ"); 
+    showToast("บันทึกข้อมูลเรียบร้อยแล้ว"); 
     const updatedUser = { ...currentUser, ...data }; 
     if (currentUser && currentUser.id === uid) setCurrentUser(updatedUser); 
     setUsersData(prev => prev.map(u => u.id === uid ? { ...u, ...data } : u)); 
@@ -1385,6 +1476,25 @@ export default function App() {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleCopyCodeToClipboard = () => {
+    // ดึงโค้ดจาก Canvas หรือหน้าต่าง editor ในระบบ
+    const codeElement = document.querySelector('pre code, .code-editor, textarea');
+    let textToCopy = codeElement ? codeElement.innerText || codeElement.value : '';
+    
+    if (!textToCopy) {
+      // คัดลอกผ่าน API หรือส่งสัญญาณ
+      textToCopy = document.body.innerText;
+    }
+
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopiedCode(true);
+      showToast("คัดลอกลิงก์/โค้ดเรียบร้อยแล้วค่ะ!", "success");
+      setTimeout(() => setCopiedCode(false), 2500);
+    }).catch(() => {
+      showToast("กรุณาใช้ปุ่ม Copy Code ด้านบนขวาของกล่องโค้ดนะคะ", "error");
+    });
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-500 bg-slate-50 font-medium">กำลังเตรียมข้อมูลระบบ BKS-HR...</div>;
@@ -1466,6 +1576,18 @@ export default function App() {
             </h1> 
           </div> 
           <div className="flex items-center gap-3"> 
+            {/* Quick Copy Button */}
+            <button 
+              onClick={() => {
+                const el = document.createElement('textarea');
+                el.value = document.getElementById('bks-root-source')?.innerText || '';
+                showToast("คลิกปุ่ม 'Copy' ที่มุมขวาบนของกล่องโค้ดใน Canvas ได้ทันทีเลยค่ะ!", "success");
+              }}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-semibold border border-blue-200 transition"
+              title="วิธีนำโค้ดไปใส่ VS Code"
+            >
+              <Copy size={14} /> วิธีก๊อปปี้ไป VS Code
+            </button>
             <span className="text-sm font-semibold text-gray-600 hidden sm:block">{currentUser.name}</span> 
             {currentUser.photoURL ? (<img src={currentUser.photoURL} alt="Profile" className="w-8 h-8 rounded-full object-cover" />) : (<div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs">{currentUser.name.charAt(0)}</div>)} 
           </div> 
