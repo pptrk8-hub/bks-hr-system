@@ -58,7 +58,7 @@ const INITIAL_USERS = [
   { name: "นางสาวภาอีด๊ะ อ่าวลึกน้อย", role: 'User', position: 'ครู', username: 'paeeda', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางสาวอรษา ชาตรีวงศ์", role: 'User', position: 'ครู', username: 'orasa', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นางสาวอารียา มาลัยกุล", role: 'User', position: 'ครู', username: 'areeya', department: 'วิชาการ', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
-  { name: "นายอิมรอน นายาว", role: 'User', position: 'ครู', username: 'iron', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
+  { name: "นายอิมรอน นายาว", role: 'User', position: 'ครู', username: 'imron', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 },
   { name: "นายอมรศักดิ์ สระวารี", role: 'User', position: 'นักการภารโรง', username: 'amornsak', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 }, 
   { name: "นางสาวอมรรัตน์ ทองนวล", role: 'User', position: 'ครู', username: 'amornrat', department: 'ทั่วไป', tel: '', email: '', salary: 0, academic: 0, backPay: 0 }
 ];
